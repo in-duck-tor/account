@@ -1,0 +1,10 @@
+// разобраться что это за .http
+// https://learn.microsoft.com/en-us/aspnet/core/test/http-files?view=aspnetcore-8.0
+
+@InDuckTor.Account.WebApi_HostAddress = http://localhost:5229
+
+GET {{InDuckTor.Account.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
