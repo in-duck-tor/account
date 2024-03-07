@@ -7,4 +7,3 @@ GET {{InDuckTor.Account.WebApi_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
-
