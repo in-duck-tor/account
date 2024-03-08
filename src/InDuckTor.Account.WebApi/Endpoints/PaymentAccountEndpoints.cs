@@ -31,7 +31,10 @@ public static class PaymentAccountEndpoints
         throw new NotImplementedException();
     }
 
-    internal static Results<Ok<TransactionDto>, ForbidHttpResult> GetAccountTransactions([FromRoute] string accountNumber)
+    internal static Results<Ok<TransactionDto[]>, ForbidHttpResult> GetAccountTransactions(
+        [FromRoute] string accountNumber,
+        [FromQuery] int? take,
+        [FromQuery] int? skip)
     {
         throw new NotImplementedException();
     }
