@@ -11,6 +11,9 @@ public class Transaction
 
     public TransactionStatus Status { get; set; } = TransactionStatus.Pending;
 
+    public DateTime StartedAt { get; init; } = DateTime.UtcNow;
+    public DateTime? FinishedAt { get; set; }
+
     public TransactionTarget? DepositOn { get; init; }
 
     public TransactionTarget? WithdrawFrom { get; init; }

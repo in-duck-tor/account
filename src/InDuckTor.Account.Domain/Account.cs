@@ -45,12 +45,12 @@ public enum AccountType
     /// <summary>
     /// Расчётный счёт
     /// </summary>
-    Payment,
+    [EnumMember(Value = "payment")] Payment,
 
     /// <summary>
     /// Ссудный счёт
     /// </summary>
-    Loan,
+    [EnumMember(Value = "loan")] Loan,
 }
 
 public enum AccountState
@@ -68,17 +68,17 @@ public enum AccountAction
     /// <summary>
     /// Внесение средств	
     /// </summary>
-    Deposit,
+    [EnumMember(Value = "deposit")] Deposit,
 
     /// <summary>
     /// Вывод средств
     /// </summary>
-    Withdraw,
+    [EnumMember(Value = "withdraw")] Withdraw,
 
     /// <summary>
     /// Заморозить счёт
     /// </summary>
-    Froze,
+    [EnumMember(Value = "freeze")] Froze,
 }
 
 /// <summary>

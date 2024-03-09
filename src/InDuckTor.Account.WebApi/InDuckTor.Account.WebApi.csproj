@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="InDuckTor.Shared" Version="1.0.0" />
+    <PackageReference Include="InDuckTor.Shared" Version="1.1.4" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
@@ -24,6 +24,18 @@
 
   <ItemGroup>
     <ProjectReference Include="..\InDuckTor.Account.Domain\InDuckTor.Account.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Endpoints\BankInfoEndpoints.Contracts.cs">
+      <DependentUpon>BankInfoEndpoints.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Endpoints\PaymentAccountEndpoints.Contracts.cs">
+      <DependentUpon>PaymentAccountEndpoints.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Endpoints\AccountEndpoints.Contacts.cs">
+      <DependentUpon>AccountEndpoints.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
 
 </Project>
