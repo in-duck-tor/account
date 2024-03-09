@@ -21,6 +21,7 @@ public record AccountDto(
     string Number,
     string CurrencyCode,
     string BankCode,
+    int CreatedBy,
     decimal Amount,
     AccountState State,
     AccountType Type,
