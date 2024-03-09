@@ -56,8 +56,20 @@ public enum TransactionType
 
 public enum TransactionStatus
 {
+    /// <summary>
+    /// Трансакция обрабатывается
+    /// </summary>
+    [EnumMember(Value = "pending")]
     Pending,
+    /// <summary>
+    /// Трансакция исполнена
+    /// </summary>
+    [EnumMember(Value = "committed")]
     Committed,
+    /// <summary>
+    /// Трансакция отменена
+    /// </summary>
+    [EnumMember(Value = "canceled")]
     Canceled,
 }
 

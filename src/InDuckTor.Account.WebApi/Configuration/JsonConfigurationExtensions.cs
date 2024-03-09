@@ -12,7 +12,7 @@ public static class JsonConfigurationExtensions
     {
         var enumMemberConverter = new JsonStringEnumMemberConverter(
             new JsonStringEnumMemberConverterOptions(),
-            typeof(TransactionType), typeof(AccountState), typeof(TransactionType), typeof(AccountType), typeof(AccountAction));
+            typeof(TransactionType), typeof(AccountState), typeof(TransactionStatus), typeof(AccountType), typeof(AccountAction));
 
         options.SerializerOptions.Converters.Add(enumMemberConverter);
     }
