@@ -11,5 +11,5 @@ public class FundsReservation
 
     public required AccountNumber AccountNumber { get; init; }
 
-    public int? TransactionId { get; set; }
+    public long? TransactionId { get; init; }
 }

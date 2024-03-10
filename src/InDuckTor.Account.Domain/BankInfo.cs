@@ -1,11 +1,11 @@
 ﻿namespace InDuckTor.Account.Domain;
 
-public class Bank
+public class BankInfo
 {
     /// <summary>
     /// БИК
     /// </summary>
-    public required int BankCode { get; init; }
+    public required string BankCode { get; init; }
 
     public string? Name { get; set; }
 

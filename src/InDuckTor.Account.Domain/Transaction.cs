@@ -1,15 +1,17 @@
-﻿using System.Runtime.Serialization;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
+using FluentResults;
 
 namespace InDuckTor.Account.Domain;
 
 // todo hierarchy for TransactionType
 public class Transaction
 {
-    public int Id { get; init; }
+    public long Id { get; init; }
 
     public required TransactionType Type { get; init; }
 
-    public TransactionStatus Status { get; set; } = TransactionStatus.Pending;
+    public TransactionStatus Status { get; set; } = TransactionStatus.Creating;
 
     public DateTime StartedAt { get; init; } = DateTime.UtcNow;
     public DateTime? FinishedAt { get; set; }
@@ -21,7 +23,66 @@ public class Transaction
     /// <summary>
     /// Резервации средств га счётах 
     /// </summary>
-    public FundsReservation[] Reservations { get; init; } = Array.Empty<FundsReservation>();
+    public FundsReservation[] Reservations { get; private set; } = Array.Empty<FundsReservation>();
+
+    public Result<Transaction> AddReservations(params FundsReservation[] reservations)
+    {
+        if (Status != TransactionStatus.Creating)
+            return new Errors.Conflict("Невозможно применить резервацию средств на счёту по уже созданной трансакции");
+
+        Reservations = Reservations.Concat(reservations).ToArray();
+        return this;
+    }
+
+    // для нужд EF 
+    protected Transaction()
+    {
+    }
+
+    /// <exception cref="InvalidOperationException">Когда оба аргумента <c>null</c></exception>
+    [SetsRequiredMembers]
+    public Transaction(TransactionTarget? depositOn, TransactionTarget? withdrawFrom)
+    {
+        DepositOn = depositOn;
+        WithdrawFrom = withdrawFrom;
+        Type = GetTransactionType(depositOn, withdrawFrom);
+    }
+
+    private static TransactionType GetTransactionType(TransactionTarget? depositOn, TransactionTarget? withdrawFrom)
+    {
+        // @formatter:off
+        if (withdrawFrom is { BankCode: BankInfo.InDuckTorBankCode } && depositOn is { BankCode: BankInfo.InDuckTorBankCode }) return TransactionType.Transfer;
+        if (withdrawFrom is { BankCode: BankInfo.InDuckTorBankCode } && depositOn is not null )                                return TransactionType.TransferToExternal;
+        if (withdrawFrom is { BankCode: BankInfo.InDuckTorBankCode } && depositOn is null)                                     return TransactionType.Withdraw;
+        if (withdrawFrom is not null                                 && depositOn is { BankCode: BankInfo.InDuckTorBankCode }) return TransactionType.TransferFromExternal;
+        if (withdrawFrom is null                                     && depositOn is { BankCode: BankInfo.InDuckTorBankCode }) return TransactionType.Deposit;
+        //@formatter:on
+        throw new InvalidOperationException("Невозможно совершить операцию не указав известные счёта отправителя и получателя");
+    }
+
+    public Result Commit()
+    {
+        if (Status != TransactionStatus.Pending)
+            return new Errors.Conflict("Невозможно завершить неактивную трансакции");
+        
+        Status = TransactionStatus.Committed;
+        FinishedAt = DateTime.UtcNow;
+        Reservations = [ ];
+        
+        return Result.Ok();
+    }
+
+    public Result Cancel()
+    {
+        if (Status != TransactionStatus.Pending)
+            return new Errors.Conflict("Невозможно завершить неактивную трансакции");
+        
+        Status = TransactionStatus.Canceled;
+        FinishedAt = DateTime.UtcNow;
+        Reservations = [ ];
+        
+        return Result.Ok();
+    }
 }
 
 public enum TransactionType
@@ -57,21 +118,30 @@ public enum TransactionType
 public enum TransactionStatus
 {
     /// <summary>
+    /// Трансакция в процессе создания 
+    /// </summary>
+    [EnumMember(Value = "creating")] Creating,
+
+    /// <summary>
     /// Трансакция обрабатывается
     /// </summary>
-    [EnumMember(Value = "pending")]
-    Pending,
+    [EnumMember(Value = "pending")] Pending,
+
     /// <summary>
     /// Трансакция исполнена
     /// </summary>
-    [EnumMember(Value = "committed")]
-    Committed,
+    [EnumMember(Value = "committed")] Committed,
+
     /// <summary>
     /// Трансакция отменена
     /// </summary>
-    [EnumMember(Value = "canceled")]
-    Canceled,
+    [EnumMember(Value = "canceled")] Canceled,
 }
 
 /// <param name="BankCode">БИК</param>
-public record TransactionTarget(decimal Amount, AccountNumber Account, string BankCode);
+public record TransactionTarget(decimal Amount, AccountNumber AccountNumber, string CurrencyCode, string BankCode)
+{
+    public BankInfo BankInfo { get; init; } = null!;
+
+    public bool InExternal => BankCode != BankInfo.InDuckTorBankCode;
+}

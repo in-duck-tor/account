@@ -18,5 +18,6 @@ public static class КодыБалансовыхСчётов
         public const int ДоГода = 45505;
         public const int До3Лет = 45506;
         public const int Более3Лет = 45507;
+        public const int ДоВостребования = 45508;
     }
 }

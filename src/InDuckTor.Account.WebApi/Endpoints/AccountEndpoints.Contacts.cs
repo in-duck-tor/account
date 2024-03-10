@@ -1,32 +1,17 @@
 ﻿using InDuckTor.Account.Domain;
+using InDuckTor.Account.Features.Models;
 
 namespace InDuckTor.Account.WebApi.Endpoints;
 
-public record AccountsSearchParams(
-    int? OwnerId,
-    AccountState? AccountState,
-    AccountType? AccountType,
-    int? Take,
-    int? Skip);
 
-/// <param name="Number">Номер счёта</param>
-/// <param name="CurrencyCode">Трёхбуквенный алфавитный код Валюты (ISO 4217)</param>
-/// <param name="BankCode">БИК</param>
-/// <param name="Amount"><b>ДЕНЬГИ</b></param>
-/// <param name="State">Статус счёта</param>
-/// <param name="Type">Тип счёта</param>
-/// <param name="CustomComment">Комментарий к счёту оставленный при создании</param>
-/// <param name="GrantedUsers">Особые права пользователей на действие со счётом</param>
-public record AccountDto(
-    string Number,
-    string CurrencyCode,
-    string BankCode,
-    int CreatedBy,
-    decimal Amount,
-    AccountState State,
-    AccountType Type,
-    string? CustomComment,
-    AccountDto.GrantedUser[] GrantedUsers)
+
+
+
+public class OpenTransactionRequest
 {
-    public record GrantedUser(int Id, AccountAction[] Actions);
+    public required NewTransactionRequest NewTransaction { get; set; }
+    public bool ExecuteImmediate { get; set; } = false;
+    public TimeSpan? RequestedTransactionTtl { get; set; }
 }
+
+public record OpenTransactionResult(long TransactionId, TransactionType TransactionType, TransactionStatus Status, TimeSpan TransactionTtl);

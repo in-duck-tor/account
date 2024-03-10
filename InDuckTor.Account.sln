@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InDuckTor.Account.Infrastru
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InDuckTor.Account.Domain", "src\InDuckTor.Account.Domain\InDuckTor.Account.Domain.csproj", "{143FAEAA-AD34-403B-A28B-7264550DB4E5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InDuckTor.Account.HttpClient", "src\InDuckTor.Account.HttpClient\InDuckTor.Account.HttpClient.csproj", "{3F134560-F9A4-49F9-B7E0-95BA66A8444A}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InDuckTor.Account.Features", "src\InDuckTor.Account.Features\InDuckTor.Account.Features.csproj", "{63118A4E-7BB6-48B3-AC89-8A42CC224AAF}"
 EndProject
 Global

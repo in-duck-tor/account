@@ -1,14 +1,19 @@
+using InDuckTor.Account.Infrastructure.Database;
 using InDuckTor.Account.WebApi.Configuration;
 using InDuckTor.Account.WebApi.Endpoints;
 using InDuckTor.Shared.Security;
 using InDuckTor.Shared.Security.Jwt;
 
+
 var builder = WebApplication.CreateBuilder(args);
+var configuration = builder.Configuration;
 
 
-builder.Services.AddInDuckTorAuthentication(builder.Configuration.GetSection(nameof(JwtSettings)));
+builder.Services.AddInDuckTorAuthentication(configuration.GetSection(nameof(JwtSettings)));
 builder.Services.AddAuthorization();
 builder.Services.AddInDuckTorSecurity();
+
+builder.Services.AddAccountsDbContext(configuration);
 
 builder.Services.AddProblemDetails()
     .ConfigureJsonConverters();
@@ -24,9 +29,10 @@ if (!app.Environment.IsProduction())
     app.UseSwaggerUI();
 }
 
+app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseHttpsRedirection();
+app.UseInDuckTorSecurity();
 
 app.AddPaymentAccountEndpoints()
     .AddBankingAccountEndpoints()

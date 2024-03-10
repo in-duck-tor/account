@@ -13,7 +13,6 @@ public static class SwaggerGenExtensions
             options.ConfigureJwtAuth();
             options.ConfigureEnumMemberValues();
             options.CustomSchemaIds(ComposeNameWithDeclaringType);
-            options.UseOneOfForPolymorphism();
             
             var dir = new DirectoryInfo(AppContext.BaseDirectory);
             foreach (var fi in dir.EnumerateFiles("*.xml"))

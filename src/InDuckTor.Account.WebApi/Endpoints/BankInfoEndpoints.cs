@@ -1,4 +1,9 @@
+using InDuckTor.Account.Features.BankInfo;
+using InDuckTor.Account.Features.Common;
+using InDuckTor.Account.Features.Models;
+using InDuckTor.Shared.Strategies;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 
 namespace InDuckTor.Account.WebApi.Endpoints;
 
@@ -19,13 +24,17 @@ public static class BankInfoEndpoints
         return builder;
     }
 
-    internal static Ok<BankInfo[]> GetBanksInfo()
+    internal static async Task<Ok<BankInfo[]>> GetBanksInfo(
+        [FromServices] IExecutor<IGetBanksInfo, Unit, BankInfo[]> getBanksInfo,
+        CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        return TypedResults.Ok(await getBanksInfo.Execute(new Unit(), cancellationToken));
     }
 
-    internal static Ok<CurrencyInfo[]> GetCurrenciesInfo()
+    internal static async Task<Ok<CurrencyInfo[]>> GetCurrenciesInfo(
+        [FromServices] IExecutor<IGetCurrenciesInfo, Unit, CurrencyInfo[]> getCurrenciesInfo,
+        CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        return TypedResults.Ok(await getCurrenciesInfo.Execute(new Unit(), cancellationToken));
     }
 }

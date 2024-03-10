@@ -1,4 +1,8 @@
 ﻿using System.Runtime.Serialization;
+using FluentResults;
+
+// todo decompose InDuckTor.Shared 
+using InDuckTor.Shared.Security.Context;
 
 namespace InDuckTor.Account.Domain;
 
@@ -6,9 +10,23 @@ public class Account
 {
     public required AccountNumber Number { get; init; }
     public required AccountType Type { get; init; }
-    public required Currency Currency { get; init; }
+    public required string CurrencyCode { get; init; }
+    public Currency Currency { get; init; }
 
-    public string BankCode { get; init; } = Bank.InDuckTorBankCode;
+    /// <summary>
+    /// Пользователь-владелец для которого был создан счёт
+    /// </summary>
+    public required int OwnerId { get; init; }
+
+    /// <summary>
+    /// Пользователь-создатель может быть как клиент так и система\сервисный аккаунт 
+    /// </summary>
+    public required int CreatedBy { get; init; }
+
+    public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
+
+    public string BankCode { get; init; } = BankInfo.InDuckTorBankCode;
+    public BankInfo BankInfo { get; set; }
 
     /// <summary>
     /// <b>ДЕНЬГИ</b>
@@ -16,8 +34,6 @@ public class Account
     public decimal Amount { get; set; } = 0;
 
     public AccountState State { get; set; } = AccountState.Active;
-
-    public required int CreatedBy { get; init; }
 
     /// <summary>
     /// Комментарий\записка назначении счёта при создании 
@@ -28,16 +44,58 @@ public class Account
     /// "Пользователи" счёта
     /// </summary>
     public List<GrantedAccountUser> GrantedUsers { get; set; } = new();
+
+    public bool CanUserRead(UserContext userContext)
+        => GrantedUsers.Any(granted => granted.Id == userContext.Id && granted.Actions.Contains(AccountAction.Read))
+           || userContext.Permissions.Contains(Permission.Account.Read)
+           || userContext.AccountType == Shared.Security.Context.AccountType.System;
+
+    public bool CanUserWithdraw(UserContext userContext)
+        => GrantedUsers.Any(granted => granted.Id == userContext.Id && granted.Actions.Contains(AccountAction.Withdraw))
+           || userContext.AccountType == Shared.Security.Context.AccountType.System;
+
+    public bool CanUserFreeze(UserContext userContext)
+        => GrantedUsers.Any(granted => granted.Id == userContext.Id && granted.Actions.Contains(AccountAction.Freeze))
+           || userContext.Permissions.Contains(Permission.Account.Manage)
+           || userContext.AccountType == Shared.Security.Context.AccountType.System;
+
+    public bool CanUserClose(UserContext userContext)
+        => GrantedUsers.Any(granted => granted.Id == userContext.Id && granted.Actions.Contains(AccountAction.Close))
+           || userContext.Permissions.Contains(Permission.Account.Manage)
+           || userContext.AccountType == Shared.Security.Context.AccountType.System;
+
+    public Result Freeze()
+    {
+        if (State == AccountState.Closed) return new Errors.Conflict("Счёт уже закрыт");
+        State = AccountState.Frozen;
+        return Result.Ok();
+    }
+
+    public Result Unfreeze()
+    {
+        if (State != AccountState.Frozen) return new Errors.Conflict("Счёт не заморожен");
+        State = AccountState.Active;
+        return Result.Ok();
+    }
+
+    public Result Close()
+    {
+        if (State != AccountState.Closed) return new Errors.Conflict("Счёт уже закрыт");
+        State = AccountState.Closed;
+        return Result.Ok();
+    }
 }
 
 public record struct AccountNumber(string Value)
 {
-    public AccountNumber CreatePaymentAccountNumber(int balanceAccountCode, int currencyNumericCode, long accountId)
-    {
-        throw new NotImplementedException();
-    }
+    /// <param name="balanceAccountCode">Код балансового счёта 2 порядка</param>
+    /// <param name="currencyNumericCode"></param>
+    /// <param name="accountId">Внутренний номер счёта</param>
+    public static AccountNumber CreatePaymentAccountNumber(int balanceAccountCode, int currencyNumericCode, long accountId)
+        => $"{balanceAccountCode:D5}{currencyNumericCode:D3}{0}{accountId:D11}";
 
     public static implicit operator string(AccountNumber number) => number.Value;
+    public static implicit operator AccountNumber(string stringNumber) => new(stringNumber);
 }
 
 public enum AccountType
@@ -78,7 +136,17 @@ public enum AccountAction
     /// <summary>
     /// Заморозить счёт
     /// </summary>
-    [EnumMember(Value = "freeze")] Froze,
+    [EnumMember(Value = "freeze")] Freeze,
+
+    /// <summary>
+    /// Закрыть счёт
+    /// </summary>
+    [EnumMember(Value = "close")] Close,
+
+    /// <summary>
+    /// Читать операции по счёту
+    /// </summary>
+    [EnumMember(Value = "read")] Read,
 }
 
 /// <summary>

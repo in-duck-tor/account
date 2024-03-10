@@ -1,7 +1,13 @@
-﻿using InDuckTor.Account.WebApi.Models;
+﻿using FluentResults;
+using InDuckTor.Account.Features.Common;
+using InDuckTor.Account.Features.Models;
+using InDuckTor.Account.Features.PaymentAccount;
+using InDuckTor.Account.WebApi.Mapping;
 using InDuckTor.Shared.Security.Context;
+using InDuckTor.Shared.Strategies;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using IResult = Microsoft.AspNetCore.Http.IResult;
 
 namespace InDuckTor.Account.WebApi.Endpoints;
 
@@ -39,42 +45,81 @@ public static class PaymentAccountEndpoints
     }
 
 
-    internal static Ok<PaymentAccountDto[]> GetCallingUserAccounts(ISecurityContext securityContext)
+    internal static async Task<Ok<PaymentAccountDto[]>> GetCallingUserAccounts(
+        [FromServices] IExecutor<IGetCallingUserAccounts, Unit, PaymentAccountDto[]> getCallingUserAccounts,
+        CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        return TypedResults.Ok(await getCallingUserAccounts.Execute(new Unit(), cancellationToken));
     }
 
-    internal static Results<Accepted, ForbidHttpResult> OpenNewAccount([FromBody] OpenPaymentAccountRequest request, ISecurityContext securityContext)
+    [ProducesResponseType(403)]
+    [ProducesResponseType(404)]
+    internal static async Task<Results<Accepted, IResult>> OpenNewAccount(
+        [FromBody] OpenPaymentAccountRequest request,
+        [FromServices] IExecutor<IOpenNewAccount, OpenPaymentAccountRequest, Result<CreateAccountResult>> openPaymentAccount,
+        CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var result = await openPaymentAccount.Execute(request, cancellationToken);
+        return result.MapToHttpResult(TypedResults.Ok);
     }
 
     /// <remarks>Планируется переход на Keyset Pagination https://struchkov.dev/blog/ru/seek-method-or-keyset-pagination</remarks>
-    internal static Results<Ok<TransactionDto[]>, ForbidHttpResult> GetAccountTransactions(
+    /// <response code="404">Счёт не найден</response>
+    [ProducesResponseType(403)]
+    [ProducesResponseType(404)]
+    internal static async Task<Results<Ok<TransactionDto[]>, IResult>> GetAccountTransactions(
         [FromRoute] string accountNumber,
         [FromQuery] int? take,
-        [FromQuery] int? skip)
+        [FromQuery] int? skip,
+        [FromServices] IExecutor<IGetAccountTransactions, GetAccountTransactionsParams, Result<TransactionDto[]>> getAccountTransactions,
+        CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var result = await getAccountTransactions.Execute(new(accountNumber, take, skip), cancellationToken);
+        return result.MapToHttpResult(TypedResults.Ok);
     }
 
-    internal static Results<Accepted, BadRequest, Conflict> MakeTransaction([FromBody] MakeTransactionRequest request)
+    [ProducesResponseType(400)]
+    [ProducesResponseType(404)]
+    [ProducesResponseType(409)]
+    internal static async Task<Results<Accepted<IdResult<long>>, IResult>> MakeTransaction(
+        [FromBody] NewTransactionRequest request,
+        [FromServices] IExecutor<IMakeTransaction, NewTransactionRequest, Result<IdResult<long>>> makeTransaction,
+        CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var result = await makeTransaction.Execute(request, cancellationToken);
+        return result.MapToHttpResult(idResult => TypedResults.Accepted(null as string, idResult));
     }
 
-    internal static Results<NoContent, ForbidHttpResult> FreezeAccount([FromRoute] string accountNumber, ISecurityContext securityContext)
+    [ProducesResponseType(404)]
+    [ProducesResponseType(403)]
+    internal static async Task<Results<NoContent, IResult>> FreezeAccount(
+        [FromRoute] string accountNumber,
+        [FromServices] IExecutor<IFreezeAccount, FreezeAccountRequest, Result> freeze,
+        CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var result = await freeze.Execute(new FreezeAccountRequest(accountNumber), cancellationToken);
+        return (Results<NoContent, IResult>)(result.IsSuccess ? TypedResults.NoContent() : result.MapToErrorHttpResult());
     }
 
-    internal static Results<NoContent, ForbidHttpResult> UnfreezeAccount([FromRoute] string accountNumber, ISecurityContext securityContext)
+    [ProducesResponseType(404)]
+    [ProducesResponseType(403)]
+    internal static async Task<Results<NoContent, IResult>> UnfreezeAccount(
+        [FromRoute] string accountNumber,
+        [FromServices] IExecutor<IFreezeAccount, FreezeAccountRequest, Result> freeze,
+        CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var result = await freeze.Execute(new FreezeAccountRequest(accountNumber, true), cancellationToken);
+        return (Results<NoContent, IResult>)(result.IsSuccess ? TypedResults.NoContent() : result.MapToErrorHttpResult());
     }
 
-    internal static Results<NoContent, ForbidHttpResult> CloseAccount([FromRoute] string accountNumber, ISecurityContext securityContext)
+    [ProducesResponseType(404)]
+    [ProducesResponseType(403)]
+    internal static async Task<Results<NoContent, IResult>> CloseAccount(
+        [FromRoute] string accountNumber,
+        [FromServices] IExecutor<ICloseAccount, string, Result> close,
+        CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var result = await close.Execute(accountNumber, cancellationToken);
+        return (Results<NoContent, IResult>)(result.IsSuccess ? TypedResults.NoContent() : result.MapToErrorHttpResult());
     }
 }
