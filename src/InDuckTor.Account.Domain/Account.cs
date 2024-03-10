@@ -3,6 +3,7 @@ using FluentResults;
 
 // todo decompose InDuckTor.Shared 
 using InDuckTor.Shared.Security.Context;
+using UserAccountType = InDuckTor.Shared.Security.Context.AccountType;
 
 namespace InDuckTor.Account.Domain;
 
@@ -50,21 +51,25 @@ public class Account
     public bool CanUserRead(UserContext userContext)
         => HasUserAction(userContext.Id, AccountAction.ReadOperations)
            || userContext.Permissions.Contains(Permission.Account.Read)
-           || userContext.AccountType == Shared.Security.Context.AccountType.System;
+           || userContext.AccountType == UserAccountType.System;
 
     public bool CanUserWithdraw(UserContext userContext)
         => IsActive && (HasUserAction(userContext.Id, AccountAction.Withdraw)
-                        || userContext.AccountType == Shared.Security.Context.AccountType.System);
+                        || userContext.AccountType == UserAccountType.System);
+
+    public bool CanUserDeposit(UserContext userContext)
+        => IsActive && (Type == AccountType.Payment
+                        || userContext.AccountType == UserAccountType.System);
 
     public bool CanUserFreeze(UserContext userContext)
         => IsActive && (HasUserAction(userContext.Id, AccountAction.Freeze)
                         || userContext.Permissions.Contains(Permission.Account.Manage)
-                        || userContext.AccountType == Shared.Security.Context.AccountType.System);
+                        || userContext.AccountType == UserAccountType.System);
 
     public bool CanUserClose(UserContext userContext)
         => IsActive && (HasUserAction(userContext.Id, AccountAction.Close)
                         || userContext.Permissions.Contains(Permission.Account.Manage)
-                        || userContext.AccountType == Shared.Security.Context.AccountType.System);
+                        || userContext.AccountType == UserAccountType.System);
 
     private bool HasUserAction(int userId, AccountAction action)
         => GrantedUsers.Any(granted => granted.Id == userId && granted.Actions.Contains(AccountAction.Close));

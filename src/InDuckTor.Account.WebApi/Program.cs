@@ -7,7 +7,6 @@ using InDuckTor.Shared.Security;
 using InDuckTor.Shared.Security.Jwt;
 using InDuckTor.Shared.Strategies;
 
-
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
@@ -22,13 +21,19 @@ builder.Services.AddAccountsDbContext(configuration);
 builder.Services.AddProblemDetails()
     .ConfigureJsonConverters();
 
+// todo использовать GW 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policyBuilder =>
+    {
+        policyBuilder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+    });
+});
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddAccountSwaggerGen();
 
 var app = builder.Build();
-
-var serviceScope = app.Services.CreateScope();
-
 
 if (!app.Environment.IsProduction())
 {
@@ -37,6 +42,10 @@ if (!app.Environment.IsProduction())
 }
 
 app.UseHttpsRedirection();
+
+// todo использовать GW 
+app.UseCors();
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseInDuckTorSecurity();

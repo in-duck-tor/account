@@ -1,4 +1,5 @@
 ﻿using System;
+using InDuckTor.Account.Domain;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -55,6 +56,7 @@ namespace InDuckTor.Account.Infrastructure.Database.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Type = table.Column<int>(type: "integer", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
+                    InitiatedBy = table.Column<int>(type: "integer", nullable: false),
                     StartedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     FinishedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     AutoCloseAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
@@ -192,6 +194,18 @@ namespace InDuckTor.Account.Infrastructure.Database.Migrations
                 schema: "account",
                 table: "Transaction",
                 column: "WithdrawFrom_BankCode");
+
+            
+            
+            migrationBuilder.InsertData(
+                schema: "account", table: "BankInfo",
+                columns: [ "BankCode", "Name" ],
+                values:  [ BankInfo.InDuckTorBankCode, "ИнДукТор Банк" ]);
+            
+            migrationBuilder.InsertData(
+                schema: "account", table: "Currency",
+                columns: [ "Code", "NumericCode", "RateToRuble" ],
+                values:  [ "RUB", 643, 1 ]);
         }
 
         /// <inheritdoc />

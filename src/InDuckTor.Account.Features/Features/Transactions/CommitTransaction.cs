@@ -5,6 +5,9 @@ using InDuckTor.Shared.Strategies;
 
 namespace InDuckTor.Account.Features.Transactions;
 
+/// <summary>
+/// Принимает Id трансакции и коммитит её
+/// </summary>
 public interface ICommitTransaction : ICommand<long, Result>;
 
 public class CommitTransaction(AccountsDbContext context) : ICommitTransaction
@@ -26,6 +29,7 @@ public class CommitTransaction(AccountsDbContext context) : ICommitTransaction
             account!.Amount += transaction.DepositOn.Amount;
         }
 
+        // проверки прав нет, посчитаем Id трансакции уже секретом
         var result = transaction.Commit();
         if (result.IsSuccess)
         {

@@ -139,6 +139,9 @@ namespace InDuckTor.Account.Infrastructure.Database.Migrations
                     b.Property<DateTime?>("FinishedAt")
                         .HasColumnType("timestamp without time zone");
 
+                    b.Property<int>("InitiatedBy")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("StartedAt")
                         .HasColumnType("timestamp without time zone");
 

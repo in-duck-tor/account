@@ -35,7 +35,7 @@ public static class AccountEndpoints
         groupBuilder.MapPost("/bank/account/transaction/{transactionId}/commit", CommitTransaction)
             .WithDescription("Зафиксировать трансакцию между счётами");
 
-        groupBuilder.MapPost("/bank/account/transaction/{transactionId}/rollback", RollbackTransaction)
+        groupBuilder.MapPost("/bank/account/transaction/{transactionId}/cancel", CancelTransaction)
             .WithDescription("Отменить трансакцию между счётами");
 
         return builder;
@@ -84,13 +84,26 @@ public static class AccountEndpoints
         return result.MapToHttpResult(transactionResult => TypedResults.Accepted(null as string, transactionResult));
     }
 
-    internal static Results<NoContent, ForbidHttpResult> CommitTransaction(long transactionId)
+
+    [ProducesResponseType(403)]
+    [ProducesResponseType(404)]
+    internal static async Task<Results<NoContent, IResult>> CommitTransaction(
+        long transactionId,
+        [FromServices] IExecutor<ICommitTransaction, long, Result> commitTransaction,
+        CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var result = await commitTransaction.Execute(transactionId, cancellationToken);
+        return result.MapToHttpResult(TypedResults.NoContent);
     }
 
-    internal static Results<NoContent, ForbidHttpResult> RollbackTransaction(long transactionId)
+    [ProducesResponseType(403)]
+    [ProducesResponseType(404)]
+    internal static async Task<Results<NoContent, IResult>> CancelTransaction(
+        long transactionId,
+        [FromServices] IExecutor<ICancelTransaction, long, Result> cancelTransaction,
+        CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var result = await cancelTransaction.Execute(transactionId, cancellationToken);
+        return result.MapToHttpResult(TypedResults.NoContent);
     }
 }

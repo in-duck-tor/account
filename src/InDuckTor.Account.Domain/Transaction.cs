@@ -13,6 +13,8 @@ public class Transaction
 
     public TransactionStatus Status { get; set; } = TransactionStatus.Creating;
 
+    public required int InitiatedBy { get; init; }
+
     public DateTime StartedAt { get; init; } = DateTime.UtcNow;
     public DateTime? FinishedAt { get; set; }
     public required DateTime AutoCloseAt { get; set; }
@@ -41,13 +43,14 @@ public class Transaction
     }
 
     public static readonly TimeSpan DefaultTtl = TimeSpan.FromMinutes(5);
-        
+
     /// <exception cref="InvalidOperationException">Когда оба аргумента <c>null</c></exception>
     [SetsRequiredMembers]
-    public Transaction(TransactionTarget? depositOn, TransactionTarget? withdrawFrom, TimeSpan ttl)
+    public Transaction(TransactionTarget? depositOn, TransactionTarget? withdrawFrom, TimeSpan ttl, int initiatedBy)
     {
         DepositOn = depositOn;
         WithdrawFrom = withdrawFrom;
+        InitiatedBy = initiatedBy;
         AutoCloseAt = DateTime.UtcNow.Add(ttl);
         Type = GetTransactionType(depositOn, withdrawFrom);
     }

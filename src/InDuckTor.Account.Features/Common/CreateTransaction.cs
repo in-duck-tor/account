@@ -19,14 +19,21 @@ public class CreateTransaction(AccountsDbContext context, ISecurityContext secur
     public async Task<Result<Transaction>> Execute(CreateTransactionParams input, CancellationToken ct)
         => await CreateNew(input.NewTransactionRequest, input.TransactionTtl ?? Transaction.DefaultTtl, ct)
             .Bind(transaction => EnsureAccountAmount(transaction, ct))
-            .Bind(AddFundsReservation);
+            .Bind(AddFundsReservation)
+            .Map(transaction =>
+            {
+                transaction.Status = TransactionStatus.Pending;
+                return transaction;
+            });
 
+    // todo refactor
     private async ValueTask<Result<Transaction>> CreateNew(NewTransactionRequest request, TimeSpan ttl, CancellationToken ct)
     {
         if (request is not { WithdrawFrom.BankCode: Domain.BankInfo.InDuckTorBankCode }
             && request is not { DepositOn.BankCode: Domain.BankInfo.InDuckTorBankCode })
             return new Errors.InvalidInput("Необходимо указать известный счёт отправитель или счёт получатель");
 
+        var currantUser = securityContext.Currant;
         TransactionTarget? withdrawFrom = null;
         if (request.WithdrawFrom is { BankCode: Domain.BankInfo.InDuckTorBankCode })
         {
@@ -35,7 +42,7 @@ public class CreateTransaction(AccountsDbContext context, ISecurityContext secur
             var account = await context.Accounts.FindAsync([ withdrawAccountNumber ], ct);
             if (account is null) return new Errors.Account.NotFound(withdrawAccountNumber);
 
-            if (!account.CanUserWithdraw(securityContext.Currant)) return new Errors.Forbidden();
+            if (!account.CanUserWithdraw(currantUser)) return new Errors.Forbidden();
 
             withdrawFrom = new TransactionTarget(request.Amount, account.Number, account.CurrencyCode, account.BankCode);
         }
@@ -48,6 +55,8 @@ public class CreateTransaction(AccountsDbContext context, ISecurityContext secur
             var account = await context.Accounts.FindAsync([ depositAccountNumber ], ct);
             if (account is null) return new Errors.Account.NotFound(depositAccountNumber);
 
+            if (!account.CanUserDeposit(currantUser)) return new Errors.Forbidden();
+
             depositOn = new TransactionTarget(request.Amount, account.Number, account.CurrencyCode, account.BankCode);
         }
 
@@ -56,7 +65,7 @@ public class CreateTransaction(AccountsDbContext context, ISecurityContext secur
 
         if (withdrawFrom.CurrencyCode != depositOn.CurrencyCode) throw new NotImplementedException("Переводы с разными валютами не реализованы");
 
-        return new Transaction(depositOn, withdrawFrom, ttl);
+        return new Transaction(depositOn, withdrawFrom, ttl, currantUser.Id);
     }
 
     private async ValueTask<Result<Transaction>> EnsureAccountAmount(Transaction transaction, CancellationToken ct)
