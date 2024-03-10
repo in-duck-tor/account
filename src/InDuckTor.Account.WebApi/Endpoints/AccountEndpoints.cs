@@ -20,7 +20,7 @@ public static class AccountEndpoints
             .WithOpenApi()
             .RequireAuthorization();
 
-        groupBuilder.MapPut("/bank/account", CreateAccount)
+        groupBuilder.MapPost("/bank/account", CreateAccount)
             .WithDescription("Создать счёт");
 
         groupBuilder.MapPut("/bank/account/search", SearchAccounts)
@@ -43,7 +43,8 @@ public static class AccountEndpoints
 
     [ProducesResponseType(403)]
     [ProducesResponseType(404)]
-    internal static async Task<Results<Ok<CreateAccountResult>, IResult>> CreateAccount(
+    [ProducesResponseType<CreateAccountResult>(200)]
+    internal static async Task<IResult/*Results<Ok<CreateAccountResult>, IResult>*/> CreateAccount(
         [FromBody] CreateAccountRequest request,
         [FromServices] IExecutor<ICreateAccount, CreateAccountRequest, Result<CreateAccountResult>> createAccount,
         CancellationToken cancellationToken)
@@ -53,7 +54,8 @@ public static class AccountEndpoints
     }
 
     [ProducesResponseType(403)]
-    internal static async Task<Results<Ok<CollectionSearchResult<AccountDto>>, IResult>> SearchAccounts(
+    [ProducesResponseType<CollectionSearchResult<AccountDto>>(200)]
+    internal static async Task<IResult> SearchAccounts(
         [FromBody] AccountsSearchParams searchParams,
         [FromServices] IExecutor<ISearchAccounts, AccountsSearchParams, Result<CollectionSearchResult<AccountDto>>> searchAccounts,
         CancellationToken cancellationToken)
@@ -64,7 +66,8 @@ public static class AccountEndpoints
 
     /// <remarks>Планируется переход на Keyset Pagination https://struchkov.dev/blog/ru/seek-method-or-keyset-pagination</remarks>
     [ProducesResponseType(403)]
-    internal static async Task<Results<Ok<TransactionDto[]>, IResult>> GetAccountTransactions(
+    [ProducesResponseType<TransactionDto[]>(200)]
+    internal static async Task<IResult> GetAccountTransactions(
         [FromRoute] string accountNumber,
         [FromQuery] int? take,
         [FromQuery] int? skip,
@@ -75,7 +78,8 @@ public static class AccountEndpoints
         return result.MapToHttpResult(TypedResults.Ok);
     }
 
-    internal static async Task<Results<Accepted<OpenTransactionResult>, IResult>> OpenTransaction(
+    [ProducesResponseType<OpenTransactionResult>(202)]
+    internal static async Task<IResult> OpenTransaction(
         [FromBody] OpenTransactionRequest request,
         [FromServices] IExecutor<IOpenTransaction, OpenTransactionRequest, Result<OpenTransactionResult>> openTransaction,
         CancellationToken cancellationToken)
@@ -87,7 +91,8 @@ public static class AccountEndpoints
 
     [ProducesResponseType(403)]
     [ProducesResponseType(404)]
-    internal static async Task<Results<NoContent, IResult>> CommitTransaction(
+    [ProducesResponseType(204)]
+    internal static async Task<IResult> CommitTransaction(
         long transactionId,
         [FromServices] IExecutor<ICommitTransaction, long, Result> commitTransaction,
         CancellationToken cancellationToken)
@@ -98,7 +103,8 @@ public static class AccountEndpoints
 
     [ProducesResponseType(403)]
     [ProducesResponseType(404)]
-    internal static async Task<Results<NoContent, IResult>> CancelTransaction(
+    [ProducesResponseType(204)]
+    internal static async Task<IResult> CancelTransaction(
         long transactionId,
         [FromServices] IExecutor<ICancelTransaction, long, Result> cancelTransaction,
         CancellationToken cancellationToken)

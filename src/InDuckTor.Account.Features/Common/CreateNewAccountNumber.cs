@@ -39,13 +39,20 @@ public class CreateNewAccountNumber(AccountsDbContext dbContext) : ICreateNewAcc
         };
     }
 
-    private Task<long> GetNextAccountPersonalCode(CancellationToken ct)
+    private async Task<long> GetNextAccountPersonalCode(CancellationToken ct)
     {
         var sequenceNameFullQuantified = dbContext.Schema is null
             ? AccountsDbContext.AccountPersonalCodeSequenceName
             : string.Join('.', dbContext.Schema, AccountsDbContext.AccountPersonalCodeSequenceName);
 
-        var nextvalQuery = dbContext.Database.SqlQuery<long>($"SELECT nextval('{sequenceNameFullQuantified}');");
-        return nextvalQuery.SingleAsync(ct);
+        var dbConnection = dbContext.Database.GetDbConnection();
+        await dbConnection.OpenAsync(ct);
+
+        await using var dbCommand = dbConnection.CreateCommand();
+        dbCommand.CommandText = $"SELECT nextval('{sequenceNameFullQuantified}')";
+        var value = await dbCommand.ExecuteScalarAsync(ct);
+        
+        ArgumentNullException.ThrowIfNull(value, "Запрос на получение id для счёта вернул null");
+        return (long)value;
     }
 }

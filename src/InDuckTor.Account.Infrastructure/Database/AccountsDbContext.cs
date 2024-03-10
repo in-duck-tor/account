@@ -35,7 +35,6 @@ public class AccountsDbContext : DbContext
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         base.ConfigureConventions(configurationBuilder);
-        configurationBuilder.Properties<DateTime>().HaveColumnType("timestamp without time zone");
         configurationBuilder.Properties<AccountNumber>().HaveConversion<AccountNumberConverter>();
     }
 }

@@ -6,13 +6,13 @@ namespace InDuckTor.Account.WebApi.Mapping;
 
 public static class ErrorsMapping
 {
-    public static Results<TSuccess, IResult> MapToHttpResult<TSuccess, T>(this Result<T> result, Func<T, TSuccess> onSuccess)
+    public static IResult MapToHttpResult<TSuccess, T>(this Result<T> result, Func<T, TSuccess> onSuccess)
         where TSuccess : IResult
-        => result.IsSuccess ? (Results<TSuccess, IResult>)onSuccess(result.Value) : (Results<TSuccess, IResult>)result.MapToErrorHttpResult();
+        => result.IsSuccess ? onSuccess(result.Value) : result.MapToErrorHttpResult();
 
-    public static Results<TSuccess, IResult> MapToHttpResult<TSuccess>(this Result result, Func<TSuccess> onSuccess)
+    public static IResult MapToHttpResult<TSuccess>(this Result result, Func<TSuccess> onSuccess)
         where TSuccess : IResult
-        => result.IsSuccess ? (Results<TSuccess, IResult>)onSuccess() : (Results<TSuccess, IResult>)result.MapToErrorHttpResult();
+        => result.IsSuccess ? onSuccess() : result.MapToErrorHttpResult();
 
     public static IResult MapToErrorHttpResult(this IResultBase result)
     {

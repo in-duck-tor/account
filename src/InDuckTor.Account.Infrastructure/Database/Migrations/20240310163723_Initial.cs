@@ -1,5 +1,4 @@
 ﻿using System;
-using InDuckTor.Account.Domain;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -57,9 +56,9 @@ namespace InDuckTor.Account.Infrastructure.Database.Migrations
                     Type = table.Column<int>(type: "integer", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
                     InitiatedBy = table.Column<int>(type: "integer", nullable: false),
-                    StartedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    FinishedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
-                    AutoCloseAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    StartedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    FinishedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    AutoCloseAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     DepositOn_Amount = table.Column<decimal>(type: "numeric", nullable: true),
                     DepositOn_AccountNumber = table.Column<string>(type: "text", nullable: true),
                     DepositOn_CurrencyCode = table.Column<string>(type: "text", nullable: true),
@@ -98,7 +97,7 @@ namespace InDuckTor.Account.Infrastructure.Database.Migrations
                     CurrencyCode = table.Column<string>(type: "text", nullable: false),
                     OwnerId = table.Column<int>(type: "integer", nullable: false),
                     CreatedBy = table.Column<int>(type: "integer", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     BankCode = table.Column<string>(type: "text", nullable: false),
                     Amount = table.Column<decimal>(type: "numeric", nullable: false),
                     State = table.Column<int>(type: "integer", nullable: false),
@@ -194,18 +193,6 @@ namespace InDuckTor.Account.Infrastructure.Database.Migrations
                 schema: "account",
                 table: "Transaction",
                 column: "WithdrawFrom_BankCode");
-
-            
-            
-            migrationBuilder.InsertData(
-                schema: "account", table: "BankInfo",
-                columns: [ "BankCode", "Name" ],
-                values:  [ BankInfo.InDuckTorBankCode, "ИнДукТор Банк" ]);
-            
-            migrationBuilder.InsertData(
-                schema: "account", table: "Currency",
-                columns: [ "Code", "NumericCode", "RateToRuble" ],
-                values:  [ "RUB", 643, 1 ]);
         }
 
         /// <inheritdoc />

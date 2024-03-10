@@ -54,7 +54,8 @@ public static class PaymentAccountEndpoints
 
     [ProducesResponseType(403)]
     [ProducesResponseType(404)]
-    internal static async Task<Results<Accepted, IResult>> OpenNewAccount(
+    [ProducesResponseType(202)]
+    internal static async Task<IResult> OpenNewAccount(
         [FromBody] OpenPaymentAccountRequest request,
         [FromServices] IExecutor<IOpenNewAccount, OpenPaymentAccountRequest, Result<CreateAccountResult>> openPaymentAccount,
         CancellationToken cancellationToken)
@@ -67,7 +68,9 @@ public static class PaymentAccountEndpoints
     /// <response code="404">Счёт не найден</response>
     [ProducesResponseType(403)]
     [ProducesResponseType(404)]
-    internal static async Task<Results<Ok<TransactionDto[]>, IResult>> GetAccountTransactions(
+    [ProducesResponseType(202)]
+    [Produces<TransactionDto[]>]
+    internal static async Task<IResult> GetAccountTransactions(
         [FromRoute] string accountNumber,
         [FromQuery] int? take,
         [FromQuery] int? skip,
@@ -81,7 +84,8 @@ public static class PaymentAccountEndpoints
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
     [ProducesResponseType(409)]
-    internal static async Task<Results<Accepted<IdResult<long>>, IResult>> MakeTransaction(
+    [ProducesResponseType<IdResult<long>>(202)]
+    internal static async Task<IResult> MakeTransaction(
         [FromBody] NewTransactionRequest request,
         [FromServices] IExecutor<IMakeTransaction, NewTransactionRequest, Result<IdResult<long>>> makeTransaction,
         CancellationToken cancellationToken)
@@ -92,34 +96,37 @@ public static class PaymentAccountEndpoints
 
     [ProducesResponseType(404)]
     [ProducesResponseType(403)]
-    internal static async Task<Results<NoContent, IResult>> FreezeAccount(
+    [ProducesResponseType(204)]
+    internal static async Task<IResult> FreezeAccount(
         [FromRoute] string accountNumber,
         [FromServices] IExecutor<IFreezeAccount, FreezeAccountRequest, Result> freeze,
         CancellationToken cancellationToken)
     {
         var result = await freeze.Execute(new FreezeAccountRequest(accountNumber), cancellationToken);
-        return (Results<NoContent, IResult>)(result.IsSuccess ? TypedResults.NoContent() : result.MapToErrorHttpResult());
+        return result.MapToHttpResult(TypedResults.NoContent);
     }
 
     [ProducesResponseType(404)]
     [ProducesResponseType(403)]
-    internal static async Task<Results<NoContent, IResult>> UnfreezeAccount(
+    [ProducesResponseType(204)]
+    internal static async Task<IResult> UnfreezeAccount(
         [FromRoute] string accountNumber,
         [FromServices] IExecutor<IFreezeAccount, FreezeAccountRequest, Result> freeze,
         CancellationToken cancellationToken)
     {
         var result = await freeze.Execute(new FreezeAccountRequest(accountNumber, true), cancellationToken);
-        return (Results<NoContent, IResult>)(result.IsSuccess ? TypedResults.NoContent() : result.MapToErrorHttpResult());
+        return result.MapToHttpResult(TypedResults.NoContent);
     }
 
     [ProducesResponseType(404)]
     [ProducesResponseType(403)]
-    internal static async Task<Results<NoContent, IResult>> CloseAccount(
+    [ProducesResponseType(204)]
+    internal static async Task<IResult> CloseAccount(
         [FromRoute] string accountNumber,
         [FromServices] IExecutor<ICloseAccount, string, Result> close,
         CancellationToken cancellationToken)
     {
         var result = await close.Execute(accountNumber, cancellationToken);
-        return (Results<NoContent, IResult>)(result.IsSuccess ? TypedResults.NoContent() : result.MapToErrorHttpResult());
+        return result.MapToHttpResult(TypedResults.NoContent);
     }
 }

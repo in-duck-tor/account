@@ -12,7 +12,7 @@ public class AccountConfiguration : IEntityTypeConfiguration<Domain.Account>
 
         builder.Property(x => x.Number).ValueGeneratedNever();
         builder.HasOne(x => x.Currency).WithMany().HasForeignKey(x => x.CurrencyCode);
-        builder.HasOne<BankInfo>(x => x.BankInfo).WithMany().HasForeignKey(x => x.BankCode);
+        builder.HasOne(x => x.BankInfo).WithMany().HasForeignKey(x => x.BankCode);
         builder.OwnsMany(x => x.GrantedUsers, ownsBuilder =>
         {
             // todo : arguable, impossible to foreign key constraint for users  
