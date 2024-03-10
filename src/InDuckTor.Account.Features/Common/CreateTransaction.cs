@@ -9,54 +9,54 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InDuckTor.Account.Features.Common;
 
-public interface ICreateTransaction : ICommand<NewTransactionRequest, Result<Transaction>>;
+public record struct CreateTransactionParams(NewTransactionRequest NewTransactionRequest, TimeSpan? TransactionTtl = null);
+
+public interface ICreateTransaction : ICommand<CreateTransactionParams, Result<Transaction>>;
 
 // todo add ForUpdates
 public class CreateTransaction(AccountsDbContext context, ISecurityContext securityContext) : ICreateTransaction
 {
-    public async Task<Result<Transaction>> Execute(NewTransactionRequest input, CancellationToken ct)
-    {
-        return await CreateNew(input, ct)
+    public async Task<Result<Transaction>> Execute(CreateTransactionParams input, CancellationToken ct)
+        => await CreateNew(input.NewTransactionRequest, input.TransactionTtl ?? Transaction.DefaultTtl, ct)
             .Bind(transaction => EnsureAccountAmount(transaction, ct))
             .Bind(AddFundsReservation);
-    }
 
-    private async ValueTask<Result<Transaction>> CreateNew(NewTransactionRequest input, CancellationToken ct)
+    private async ValueTask<Result<Transaction>> CreateNew(NewTransactionRequest request, TimeSpan ttl, CancellationToken ct)
     {
-        if (input is not { WithdrawFrom.BankCode: Domain.BankInfo.InDuckTorBankCode }
-            && input is not { DepositOn.BankCode: Domain.BankInfo.InDuckTorBankCode })
+        if (request is not { WithdrawFrom.BankCode: Domain.BankInfo.InDuckTorBankCode }
+            && request is not { DepositOn.BankCode: Domain.BankInfo.InDuckTorBankCode })
             return new Errors.InvalidInput("Необходимо указать известный счёт отправитель или счёт получатель");
 
         TransactionTarget? withdrawFrom = null;
-        if (input.WithdrawFrom is { BankCode: Domain.BankInfo.InDuckTorBankCode })
+        if (request.WithdrawFrom is { BankCode: Domain.BankInfo.InDuckTorBankCode })
         {
-            var withdrawAccountNumber = input.WithdrawFrom.AccountNumber;
+            var withdrawAccountNumber = request.WithdrawFrom.AccountNumber;
 
             var account = await context.Accounts.FindAsync([ withdrawAccountNumber ], ct);
             if (account is null) return new Errors.Account.NotFound(withdrawAccountNumber);
 
             if (!account.CanUserWithdraw(securityContext.Currant)) return new Errors.Forbidden();
 
-            withdrawFrom = new TransactionTarget(input.Amount, account.Number, account.CurrencyCode, account.BankCode);
+            withdrawFrom = new TransactionTarget(request.Amount, account.Number, account.CurrencyCode, account.BankCode);
         }
 
         TransactionTarget? depositOn = null;
-        if (input.DepositOn is { BankCode: Domain.BankInfo.InDuckTorBankCode })
+        if (request.DepositOn is { BankCode: Domain.BankInfo.InDuckTorBankCode })
         {
-            var depositAccountNumber = input.DepositOn.AccountNumber;
+            var depositAccountNumber = request.DepositOn.AccountNumber;
 
             var account = await context.Accounts.FindAsync([ depositAccountNumber ], ct);
             if (account is null) return new Errors.Account.NotFound(depositAccountNumber);
 
-            depositOn = new TransactionTarget(input.Amount, account.Number, account.CurrencyCode, account.BankCode);
+            depositOn = new TransactionTarget(request.Amount, account.Number, account.CurrencyCode, account.BankCode);
         }
 
-        withdrawFrom ??= new TransactionTarget(input.Amount, input.WithdrawFrom!.AccountNumber, depositOn!.CurrencyCode, input.WithdrawFrom.BankCode);
-        depositOn ??= new TransactionTarget(input.Amount, input.DepositOn!.AccountNumber, withdrawFrom!.CurrencyCode, input.DepositOn.BankCode);
+        withdrawFrom ??= new TransactionTarget(request.Amount, request.WithdrawFrom!.AccountNumber, depositOn!.CurrencyCode, request.WithdrawFrom.BankCode);
+        depositOn ??= new TransactionTarget(request.Amount, request.DepositOn!.AccountNumber, withdrawFrom!.CurrencyCode, request.DepositOn.BankCode);
 
         if (withdrawFrom.CurrencyCode != depositOn.CurrencyCode) throw new NotImplementedException("Переводы с разными валютами не реализованы");
 
-        return new Transaction(depositOn, withdrawFrom);
+        return new Transaction(depositOn, withdrawFrom, ttl);
     }
 
     private async ValueTask<Result<Transaction>> EnsureAccountAmount(Transaction transaction, CancellationToken ct)

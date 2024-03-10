@@ -57,6 +57,7 @@ namespace InDuckTor.Account.Infrastructure.Database.Migrations
                     Status = table.Column<int>(type: "integer", nullable: false),
                     StartedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     FinishedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    AutoCloseAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     DepositOn_Amount = table.Column<decimal>(type: "numeric", nullable: true),
                     DepositOn_AccountNumber = table.Column<string>(type: "text", nullable: true),
                     DepositOn_CurrencyCode = table.Column<string>(type: "text", nullable: true),

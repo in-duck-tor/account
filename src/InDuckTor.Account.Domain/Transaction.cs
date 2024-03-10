@@ -15,6 +15,7 @@ public class Transaction
 
     public DateTime StartedAt { get; init; } = DateTime.UtcNow;
     public DateTime? FinishedAt { get; set; }
+    public required DateTime AutoCloseAt { get; set; }
 
     public TransactionTarget? DepositOn { get; init; }
 
@@ -39,12 +40,15 @@ public class Transaction
     {
     }
 
+    public static readonly TimeSpan DefaultTtl = TimeSpan.FromMinutes(5);
+        
     /// <exception cref="InvalidOperationException">Когда оба аргумента <c>null</c></exception>
     [SetsRequiredMembers]
-    public Transaction(TransactionTarget? depositOn, TransactionTarget? withdrawFrom)
+    public Transaction(TransactionTarget? depositOn, TransactionTarget? withdrawFrom, TimeSpan ttl)
     {
         DepositOn = depositOn;
         WithdrawFrom = withdrawFrom;
+        AutoCloseAt = DateTime.UtcNow.Add(ttl);
         Type = GetTransactionType(depositOn, withdrawFrom);
     }
 
@@ -64,11 +68,11 @@ public class Transaction
     {
         if (Status != TransactionStatus.Pending)
             return new Errors.Conflict("Невозможно завершить неактивную трансакции");
-        
+
         Status = TransactionStatus.Committed;
         FinishedAt = DateTime.UtcNow;
         Reservations = [ ];
-        
+
         return Result.Ok();
     }
 
@@ -76,11 +80,11 @@ public class Transaction
     {
         if (Status != TransactionStatus.Pending)
             return new Errors.Conflict("Невозможно завершить неактивную трансакции");
-        
+
         Status = TransactionStatus.Canceled;
         FinishedAt = DateTime.UtcNow;
         Reservations = [ ];
-        
+
         return Result.Ok();
     }
 }

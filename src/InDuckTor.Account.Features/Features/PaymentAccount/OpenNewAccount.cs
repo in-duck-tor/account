@@ -37,7 +37,7 @@ public class OpenNewAccount(
             CreatedBy = callingUserId,
             OwnerId = callingUserId,
             BankCode = Domain.BankInfo.InDuckTorBankCode,
-            GrantedUsers = [ new GrantedAccountUser(callingUserId, [ AccountAction.Withdraw, AccountAction.Freeze, AccountAction.Read, AccountAction.Close ]) ],
+            GrantedUsers = [ new GrantedAccountUser(callingUserId, [ AccountAction.Withdraw, AccountAction.Freeze, AccountAction.ReadOperations, AccountAction.Close ]) ],
             CustomComment = input.CustomComment
         };
 

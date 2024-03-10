@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace InDuckTor.Account.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(AccountsDbContext))]
-    [Migration("20240310031947_Initial")]
+    [Migration("20240310124848_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -135,6 +135,9 @@ namespace InDuckTor.Account.Infrastructure.Database.Migrations
                         .HasColumnType("bigint");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("AutoCloseAt")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime?>("FinishedAt")
                         .HasColumnType("timestamp without time zone");

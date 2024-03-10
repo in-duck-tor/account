@@ -14,12 +14,12 @@ public interface IMakeTransaction : ICommand<NewTransactionRequest, Result<IdRes
 
 public class MakeTransaction(
     AccountsDbContext context,
-    IExecutor<ICreateTransaction, NewTransactionRequest, Result<Transaction>> createTransaction,
+    IExecutor<ICreateTransaction, CreateTransactionParams, Result<Transaction>> createTransaction,
     IExecutor<ICommitTransaction, long, Result> commitTransaction)
     : IMakeTransaction
 {
     public Task<Result<IdResult<long>>> Execute(NewTransactionRequest input, CancellationToken ct)
-        => createTransaction.Execute(input, ct)
+        => createTransaction.Execute(new CreateTransactionParams(input) , ct)
             .Bind(transaction => EnsureTransactionAccountTypes(transaction, ct))
             .Bind(async transaction =>
             {
@@ -28,7 +28,7 @@ public class MakeTransaction(
                 return Result.Ok(new IdResult<long>(transaction.Id));
             });
 
-    private async Task<Result<Transaction>> EnsureTransactionAccountTypes(Transaction transaction, CancellationToken ct)
+    private async Task<Result<Transaction>> EnsureTransactionAccountTypes(Transaction transaction, CancellationToken ct) 
         => await EnsureAccountType(transaction.DepositOn, ct)
            && await EnsureAccountType(transaction.WithdrawFrom, ct)
             ? transaction

@@ -16,11 +16,11 @@ public class AccountsDbContext : DbContext
             ?.Schema;
     }
 
-    public virtual DbSet<Domain.Account> Accounts { get; } = null!;
-    public virtual DbSet<BankInfo> Banks { get; } = null!;
-    public virtual DbSet<Currency> Currencies { get; } = null!;
-    public virtual DbSet<FundsReservation> FundsReservations { get; } = null!;
-    public virtual DbSet<Transaction> Transactions { get; } = null!;
+    public virtual DbSet<Domain.Account> Accounts { get; set; } = null!;
+    public virtual DbSet<BankInfo> Banks { get; set; } = null!;
+    public virtual DbSet<Currency> Currencies { get; set; } = null!;
+    public virtual DbSet<FundsReservation> FundsReservations { get; set; } = null!;
+    public virtual DbSet<Transaction> Transactions { get; set; } = null!;
 
     public const string AccountPersonalCodeSequenceName = "account_personal_code_seq";
 

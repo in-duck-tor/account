@@ -45,24 +45,29 @@ public class Account
     /// </summary>
     public List<GrantedAccountUser> GrantedUsers { get; set; } = new();
 
+    public bool IsActive => State == AccountState.Active;
+
     public bool CanUserRead(UserContext userContext)
-        => GrantedUsers.Any(granted => granted.Id == userContext.Id && granted.Actions.Contains(AccountAction.Read))
+        => HasUserAction(userContext.Id, AccountAction.ReadOperations)
            || userContext.Permissions.Contains(Permission.Account.Read)
            || userContext.AccountType == Shared.Security.Context.AccountType.System;
 
     public bool CanUserWithdraw(UserContext userContext)
-        => GrantedUsers.Any(granted => granted.Id == userContext.Id && granted.Actions.Contains(AccountAction.Withdraw))
-           || userContext.AccountType == Shared.Security.Context.AccountType.System;
+        => IsActive && (HasUserAction(userContext.Id, AccountAction.Withdraw)
+                        || userContext.AccountType == Shared.Security.Context.AccountType.System);
 
     public bool CanUserFreeze(UserContext userContext)
-        => GrantedUsers.Any(granted => granted.Id == userContext.Id && granted.Actions.Contains(AccountAction.Freeze))
-           || userContext.Permissions.Contains(Permission.Account.Manage)
-           || userContext.AccountType == Shared.Security.Context.AccountType.System;
+        => IsActive && (HasUserAction(userContext.Id, AccountAction.Freeze)
+                        || userContext.Permissions.Contains(Permission.Account.Manage)
+                        || userContext.AccountType == Shared.Security.Context.AccountType.System);
 
     public bool CanUserClose(UserContext userContext)
-        => GrantedUsers.Any(granted => granted.Id == userContext.Id && granted.Actions.Contains(AccountAction.Close))
-           || userContext.Permissions.Contains(Permission.Account.Manage)
-           || userContext.AccountType == Shared.Security.Context.AccountType.System;
+        => IsActive && (HasUserAction(userContext.Id, AccountAction.Close)
+                        || userContext.Permissions.Contains(Permission.Account.Manage)
+                        || userContext.AccountType == Shared.Security.Context.AccountType.System);
+
+    private bool HasUserAction(int userId, AccountAction action)
+        => GrantedUsers.Any(granted => granted.Id == userId && granted.Actions.Contains(AccountAction.Close));
 
     public Result Freeze()
     {
@@ -146,7 +151,7 @@ public enum AccountAction
     /// <summary>
     /// Читать операции по счёту
     /// </summary>
-    [EnumMember(Value = "read")] Read,
+    [EnumMember(Value = "read")] ReadOperations,
 }
 
 /// <summary>

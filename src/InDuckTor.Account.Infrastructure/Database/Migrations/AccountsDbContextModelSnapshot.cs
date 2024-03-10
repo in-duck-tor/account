@@ -133,6 +133,9 @@ namespace InDuckTor.Account.Infrastructure.Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
+                    b.Property<DateTime>("AutoCloseAt")
+                        .HasColumnType("timestamp without time zone");
+
                     b.Property<DateTime?>("FinishedAt")
                         .HasColumnType("timestamp without time zone");
 

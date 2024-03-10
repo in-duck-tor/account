@@ -22,8 +22,8 @@ public class GetAccountTransactions(AccountsDbContext context, ISecurityContext 
 
     public async Task<Result<TransactionDto[]>> Execute(GetAccountTransactionsParams input, CancellationToken ct)
     {
-        var account = await context.Accounts
-            .FirstOrDefaultAsync(x => x.Number == input.AccountNumber && x.Type == AccountType.Payment, ct);
+        var account = await context.Accounts.FirstOrDefaultAsync(x => x.Number == input.AccountNumber && x.Type == AccountType.Payment, ct);
+        
         if (account is null) return new Errors.Account.NotFound(input.AccountNumber);
 
         if (!account.CanUserRead(securityContext.Currant)) return new Errors.Forbidden();

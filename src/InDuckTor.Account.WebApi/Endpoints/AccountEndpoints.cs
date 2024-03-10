@@ -3,6 +3,7 @@ using InDuckTor.Account.Features.Account.CreateAccount;
 using InDuckTor.Account.Features.Account.GetAccountTransactions;
 using InDuckTor.Account.Features.Account.SearchAccounts;
 using InDuckTor.Account.Features.Models;
+using InDuckTor.Account.Features.Transactions;
 using InDuckTor.Account.WebApi.Mapping;
 using InDuckTor.Shared.Strategies;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -74,9 +75,13 @@ public static class AccountEndpoints
         return result.MapToHttpResult(TypedResults.Ok);
     }
 
-    internal static Results<Accepted<OpenTransactionResult>, ForbidHttpResult> OpenTransaction([FromBody] OpenTransactionRequest request)
+    internal static async Task<Results<Accepted<OpenTransactionResult>, IResult>> OpenTransaction(
+        [FromBody] OpenTransactionRequest request,
+        [FromServices] IExecutor<IOpenTransaction, OpenTransactionRequest, Result<OpenTransactionResult>> openTransaction,
+        CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var result = await openTransaction.Execute(request, cancellationToken);
+        return result.MapToHttpResult(transactionResult => TypedResults.Accepted(null as string, transactionResult));
     }
 
     internal static Results<NoContent, ForbidHttpResult> CommitTransaction(long transactionId)

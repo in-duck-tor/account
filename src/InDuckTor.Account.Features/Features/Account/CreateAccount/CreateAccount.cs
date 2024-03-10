@@ -40,7 +40,7 @@ public class CreateAccount : ICreateAccount
             OwnerId = input.ForUserId,
             CustomComment = input.CustomComment,
             BankCode = Domain.BankInfo.InDuckTorBankCode,
-            GrantedUsers = [ new GrantedAccountUser(input.ForUserId, [ AccountAction.Freeze, AccountAction.Withdraw, AccountAction.Read ]) ]
+            GrantedUsers = [ new GrantedAccountUser(input.ForUserId, [ AccountAction.Freeze, AccountAction.Withdraw, AccountAction.ReadOperations ]) ]
         };
 
         _context.Add(account);
