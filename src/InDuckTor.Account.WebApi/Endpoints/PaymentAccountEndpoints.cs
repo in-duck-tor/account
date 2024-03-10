@@ -129,4 +129,4 @@ public static class PaymentAccountEndpoints
         var result = await close.Execute(accountNumber, cancellationToken);
         return result.MapToHttpResult(TypedResults.NoContent);
     }
-}
+} 
