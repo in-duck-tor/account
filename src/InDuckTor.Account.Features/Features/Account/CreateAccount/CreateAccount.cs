@@ -4,12 +4,12 @@ using InDuckTor.Account.Features.Common;
 using InDuckTor.Account.Features.Models;
 using InDuckTor.Account.Infrastructure.Database;
 using InDuckTor.Shared.Security.Context;
-using InDuckTor.Shared.Strategies;
+using InDuckTor.Shared.Strategies.Interceptors;
 
 namespace InDuckTor.Account.Features.Account.CreateAccount;
 
-// todo check dependency registration if use internal implementation
-[Intercept(typeof(RequireAccountManagementPermission<CreateAccountRequest, CreateAccountResult>))]
+[AllowSystem]
+[RequirePermission(Permission.Account.Manage)]
 public class CreateAccount : ICreateAccount
 {
     private readonly AccountsDbContext _context;
@@ -26,7 +26,7 @@ public class CreateAccount : ICreateAccount
     public async Task<Result<CreateAccountResult>> Execute(CreateAccountRequest input, CancellationToken ct)
     {
         var currency = await _context.Currencies.FindAsync([ input.CurrencyCode ], ct);
-        if (currency is null) return new Errors.Currency.NotFound(input.CurrencyCode);
+        if (currency is null) return new DomainErrors.Currency.NotFound(input.CurrencyCode);
 
         var newAccountNumberArgs = new NewAccountNumberArgs(input.AccountType, Domain.BankInfo.InDuckTorBankCode, currency, input.PlannedExpiration);
         var accountNumber = await _createNewAccountNumber.Execute(newAccountNumberArgs, ct);

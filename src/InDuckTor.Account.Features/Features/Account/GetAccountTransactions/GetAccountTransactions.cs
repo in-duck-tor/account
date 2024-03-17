@@ -3,11 +3,13 @@ using InDuckTor.Account.Domain;
 using InDuckTor.Account.Features.Models;
 using InDuckTor.Account.Infrastructure.Database;
 using InDuckTor.Shared.Strategies;
+using InDuckTor.Shared.Strategies.Interceptors;
 using Microsoft.EntityFrameworkCore;
 
 namespace InDuckTor.Account.Features.Account.GetAccountTransactions;
 
-[Intercept(typeof(RequireReadAccountsPermission<GetAccountTransactionsParams, TransactionDto[]>))]
+[AllowSystem]
+[RequirePermission(Permission.Account.Read)]
 public class GetAccountTransactions(AccountsDbContext context) : IGetAccountTransactions
 {
     // todo move to config

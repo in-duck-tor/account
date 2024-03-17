@@ -1,6 +1,7 @@
 ﻿using FluentResults;
 using InDuckTor.Account.Domain;
 using InDuckTor.Account.Infrastructure.Database;
+using InDuckTor.Shared.Models;
 using InDuckTor.Shared.Security.Context;
 using InDuckTor.Shared.Strategies;
 
@@ -13,10 +14,10 @@ public class CloseAccount(AccountsDbContext context, ISecurityContext securityCo
     public async Task<Result> Execute(AccountNumber accountNumber, CancellationToken ct)
     {
         var account = await context.Accounts.FindAsync([ accountNumber ], ct);
-        if (account is null) return new Errors.Account.NotFound(accountNumber);
+        if (account is null) return new DomainErrors.Account.NotFound(accountNumber);
 
         if (!account.CanUserClose(securityContext.Currant)) return new Errors.Forbidden();
-        if (account.Amount != 0) return new Errors.Account.NotEmpty(accountNumber);
+        if (account.Amount != 0) return new DomainErrors.Account.NotEmpty(accountNumber);
 
         var result = account.Close();
         if (result.IsSuccess)

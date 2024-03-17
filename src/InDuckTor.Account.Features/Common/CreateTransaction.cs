@@ -4,10 +4,10 @@ using InDuckTor.Account.Domain;
 using InDuckTor.Account.Features.Models;
 using InDuckTor.Account.Features.Utils;
 using InDuckTor.Account.Infrastructure.Database;
+using InDuckTor.Shared.Models;
 using InDuckTor.Shared.Security.Context;
 using InDuckTor.Shared.Strategies;
 using Microsoft.EntityFrameworkCore;
-using ResultExtensions = InDuckTor.Account.Features.Utils.ResultExtensions;
 
 namespace InDuckTor.Account.Features.Common;
 
@@ -70,7 +70,7 @@ public class CreateTransaction(AccountsDbContext context, ISecurityContext secur
             return new TransactionTarget(amount, requestTarget.AccountNumber, null, requestTarget.BankCode);
 
         var account = await context.Accounts.FindAsync([ requestTarget.AccountNumber ], ct);
-        if (account is null) return new Errors.Account.NotFound(requestTarget.AccountNumber);
+        if (account is null) return new DomainErrors.Account.NotFound(requestTarget.AccountNumber);
 
         var result = checkAccount(account);
         if (result.IsFailed) return result;
@@ -93,7 +93,7 @@ public class CreateTransaction(AccountsDbContext context, ISecurityContext secur
 
         return freeFunds >= transaction.WithdrawFrom.Amount
             ? transaction
-            : new Errors.Account.NotEnoughFunds();
+            : new DomainErrors.Account.NotEnoughFunds();
     }
 
     private Result<Transaction> AddFundsReservation(Transaction transaction)

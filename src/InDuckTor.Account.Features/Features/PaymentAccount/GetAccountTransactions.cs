@@ -2,6 +2,7 @@
 using InDuckTor.Account.Domain;
 using InDuckTor.Account.Features.Models;
 using InDuckTor.Account.Infrastructure.Database;
+using InDuckTor.Shared.Models;
 using InDuckTor.Shared.Security.Context;
 using InDuckTor.Shared.Strategies;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +24,7 @@ public class GetAccountTransactions(AccountsDbContext context, ISecurityContext 
     {
         var account = await context.Accounts.FirstOrDefaultAsync(x => x.Number == input.AccountNumber && x.Type == AccountType.Payment, ct);
         
-        if (account is null) return new Errors.Account.NotFound(input.AccountNumber);
+        if (account is null) return new DomainErrors.Account.NotFound(input.AccountNumber);
 
         if (!account.CanUserRead(securityContext.Currant)) return new Errors.Forbidden();
 

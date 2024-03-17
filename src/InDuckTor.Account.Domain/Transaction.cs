@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using FluentResults;
+using InDuckTor.Shared.Models;
 
 namespace InDuckTor.Account.Domain;
 

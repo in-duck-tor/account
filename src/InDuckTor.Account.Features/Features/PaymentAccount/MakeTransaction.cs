@@ -5,6 +5,7 @@ using InDuckTor.Account.Features.Common;
 using InDuckTor.Account.Features.Models;
 using InDuckTor.Account.Features.Transactions;
 using InDuckTor.Account.Infrastructure.Database;
+using InDuckTor.Shared.Models;
 using InDuckTor.Shared.Strategies;
 using AccountType = InDuckTor.Account.Domain.AccountType;
 

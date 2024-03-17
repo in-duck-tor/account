@@ -1,6 +1,7 @@
 ﻿using FluentResults;
 using InDuckTor.Account.Domain;
 using InDuckTor.Account.Infrastructure.Database;
+using InDuckTor.Shared.Models;
 using InDuckTor.Shared.Security.Context;
 using InDuckTor.Shared.Strategies;
 
@@ -18,7 +19,7 @@ public class FreezeAccount(AccountsDbContext context, ISecurityContext securityC
     public async Task<Result> Execute(FreezeAccountRequest request, CancellationToken ct)
     {
         var account = await context.Accounts.FindAsync([ request.AccountNumber ], ct);
-        if (account is null) return new Errors.Account.NotFound(request.AccountNumber);
+        if (account is null) return new DomainErrors.Account.NotFound(request.AccountNumber);
 
         if (!account.CanUserFreeze(securityContext.Currant)) return new Errors.Forbidden();
 

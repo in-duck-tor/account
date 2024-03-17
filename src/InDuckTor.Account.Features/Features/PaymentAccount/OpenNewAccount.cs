@@ -23,7 +23,7 @@ public class OpenNewAccount(
     public async Task<Result<CreateAccountResult>> Execute(OpenPaymentAccountRequest input, CancellationToken ct)
     {
         var currency = await context.Currencies.FindAsync([ input.CurrencyCode ], ct);
-        if (currency is null) return new Errors.Currency.NotFound(input.CurrencyCode);
+        if (currency is null) return new DomainErrors.Currency.NotFound(input.CurrencyCode);
 
         var accountNumber = await createNewAccountNumber.Execute(new NewAccountNumberArgs(AccountType.Payment, Domain.BankInfo.InDuckTorBankCode, currency), ct);
         var callingUserId = securityContext.Currant.Id;

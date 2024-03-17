@@ -1,7 +1,6 @@
 ﻿using System.Runtime.Serialization;
 using FluentResults;
-
-// todo decompose InDuckTor.Shared 
+using InDuckTor.Shared.Models;
 using InDuckTor.Shared.Security.Context;
 using UserAccountType = InDuckTor.Shared.Security.Context.AccountType;
 

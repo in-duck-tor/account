@@ -12,7 +12,7 @@ public class CancelTransaction(AccountsDbContext context) : ICancelTransaction
     public async Task<Result> Execute(long transactionId, CancellationToken ct)
     {
         var transaction = await context.Transactions.FindAsync([ transactionId ], ct);
-        if (transaction is null) return new Errors.Transaction.NotFound(transactionId);
+        if (transaction is null) return new DomainErrors.Transaction.NotFound(transactionId);
 
         return await transaction.Cancel().Bind(DeleteReservations);
 

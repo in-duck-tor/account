@@ -1,9 +1,9 @@
 ﻿using FluentResults;
-using InDuckTor.Account.Domain;
-using Microsoft.AspNetCore.Http.HttpResults;
+using InDuckTor.Shared.Models;
 
 namespace InDuckTor.Account.WebApi.Mapping;
 
+// todd move to shared 
 public static class ErrorsMapping
 {
     public static IResult MapToHttpResult<TSuccess, T>(this Result<T> result, Func<T, TSuccess> onSuccess)

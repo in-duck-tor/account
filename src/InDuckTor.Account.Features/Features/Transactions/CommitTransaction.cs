@@ -15,7 +15,7 @@ public class CommitTransaction(AccountsDbContext context) : ICommitTransaction
     public async Task<Result> Execute(long transactionId, CancellationToken ct)
     {
         var transaction = await context.Transactions.FindAsync([ transactionId ], ct);
-        if (transaction is null) return new Errors.Transaction.NotFound(transactionId);
+        if (transaction is null) return new DomainErrors.Transaction.NotFound(transactionId);
 
         if (transaction is { WithdrawFrom.InExternal: false })
         {
