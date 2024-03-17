@@ -28,7 +28,8 @@ public class CreateAccount : ICreateAccount
         var currency = await _context.Currencies.FindAsync([ input.CurrencyCode ], ct);
         if (currency is null) return new Errors.Currency.NotFound(input.CurrencyCode);
 
-        var accountNumber = await _createNewAccountNumber.Execute(new NewAccountNumberArgs(input.AccountType, currency, input.PlannedExpiration), ct);
+        var newAccountNumberArgs = new NewAccountNumberArgs(input.AccountType, Domain.BankInfo.InDuckTorBankCode, currency, input.PlannedExpiration);
+        var accountNumber = await _createNewAccountNumber.Execute(newAccountNumberArgs, ct);
 
         var account = new Domain.Account
         {

@@ -25,7 +25,7 @@ public class OpenNewAccount(
         var currency = await context.Currencies.FindAsync([ input.CurrencyCode ], ct);
         if (currency is null) return new Errors.Currency.NotFound(input.CurrencyCode);
 
-        var accountNumber = await createNewAccountNumber.Execute(new NewAccountNumberArgs(AccountType.Payment, currency, null), ct);
+        var accountNumber = await createNewAccountNumber.Execute(new NewAccountNumberArgs(AccountType.Payment, Domain.BankInfo.InDuckTorBankCode, currency), ct);
         var callingUserId = securityContext.Currant.Id;
 
         var account = new Domain.Account
@@ -37,7 +37,7 @@ public class OpenNewAccount(
             CreatedBy = callingUserId,
             OwnerId = callingUserId,
             BankCode = Domain.BankInfo.InDuckTorBankCode,
-            GrantedUsers = [ new GrantedAccountUser(callingUserId, [ AccountAction.Withdraw, AccountAction.Freeze, AccountAction.ReadOperations, AccountAction.Close ]) ],
+            GrantedUsers = [ new GrantedAccountUser(callingUserId, AllAccountActions) ],
             CustomComment = input.CustomComment
         };
 
@@ -46,4 +46,6 @@ public class OpenNewAccount(
 
         return new CreateAccountResult(account.Number);
     }
+
+    private static readonly AccountAction[] AllAccountActions = [ AccountAction.Withdraw, AccountAction.Freeze, AccountAction.ReadOperations, AccountAction.Close ];
 }

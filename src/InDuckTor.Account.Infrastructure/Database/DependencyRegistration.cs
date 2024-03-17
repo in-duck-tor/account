@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
 
 namespace InDuckTor.Account.Infrastructure.Database;
 
@@ -16,13 +17,16 @@ public static class DependencyRegistration
         var databaseSettings = configurationSection.Get<DatabaseSettings>();
         ArgumentNullException.ThrowIfNull(databaseSettings, nameof(configuration));
 
+        var npgsqlDataSource = new NpgsqlDataSourceBuilder(configuration.GetConnectionString("AccountDatabase"))
+            .EnableDynamicJson()
+            .Build();
+
         return serviceCollection.AddDbContext<AccountsDbContext>(optionsBuilder =>
         {
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder)
                 .AddOrUpdateExtension(new AccountsDbContextOptionsExtension(databaseSettings.Scheme));
 
-            optionsBuilder
-                .UseNpgsql(configuration.GetConnectionString("AccountDatabase"));
+            optionsBuilder.UseNpgsql(npgsqlDataSource);
         });
     }
 }

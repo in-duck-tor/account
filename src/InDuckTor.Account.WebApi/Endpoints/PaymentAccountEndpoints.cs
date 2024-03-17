@@ -1,9 +1,9 @@
 ﻿using FluentResults;
-using InDuckTor.Account.Features.Common;
+using InDuckTor.Account.Domain;
 using InDuckTor.Account.Features.Models;
 using InDuckTor.Account.Features.PaymentAccount;
 using InDuckTor.Account.WebApi.Mapping;
-using InDuckTor.Shared.Security.Context;
+using InDuckTor.Shared.Models;
 using InDuckTor.Shared.Strategies;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -84,10 +84,10 @@ public static class PaymentAccountEndpoints
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
     [ProducesResponseType(409)]
-    [ProducesResponseType<IdResult<long>>(202)]
+    [ProducesResponseType<MakeTransactionResult>(202)]
     internal static async Task<IResult> MakeTransaction(
         [FromBody] NewTransactionRequest request,
-        [FromServices] IExecutor<IMakeTransaction, NewTransactionRequest, Result<IdResult<long>>> makeTransaction,
+        [FromServices] IExecutor<IMakeTransaction, NewTransactionRequest, Result<MakeTransactionResult>> makeTransaction,
         CancellationToken cancellationToken)
     {
         var result = await makeTransaction.Execute(request, cancellationToken);
@@ -122,8 +122,8 @@ public static class PaymentAccountEndpoints
     [ProducesResponseType(403)]
     [ProducesResponseType(204)]
     internal static async Task<IResult> CloseAccount(
-        [FromRoute] string accountNumber,
-        [FromServices] IExecutor<ICloseAccount, string, Result> close,
+        [FromRoute] AccountNumber accountNumber,
+        [FromServices] IExecutor<ICloseAccount, AccountNumber, Result> close,
         CancellationToken cancellationToken)
     {
         var result = await close.Execute(accountNumber, cancellationToken);

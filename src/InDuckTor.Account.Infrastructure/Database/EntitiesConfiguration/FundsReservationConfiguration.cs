@@ -10,6 +10,9 @@ public class FundsReservationConfiguration : IEntityTypeConfiguration<FundsReser
     {
         builder.ToTable(nameof(FundsReservation)).HasKey(x => x.Id);
 
-        builder.HasOne<Transaction>().WithMany(transaction => transaction.Reservations).HasForeignKey(x => x.TransactionId);
+        builder.HasOne<Transaction>()
+            .WithMany(transaction => transaction.Reservations)
+            .HasForeignKey(x => x.TransactionId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

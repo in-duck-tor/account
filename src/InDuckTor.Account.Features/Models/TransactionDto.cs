@@ -17,7 +17,7 @@ public record TransactionDto(
     /// <param name="BankCode">БИК</param>
     /// <param name="BankName">Имя банка</param>
     /// <param name="CurrencyCode">Трёхбуквенный алфавитный код Валюты (ISO 4217)</param>
-    public record Target(decimal Amount, string CurrencyCode, string AccountNumber, string BankCode, string? BankName);
+    public record Target(decimal Amount, string CurrencyCode, string AccountNumber, BankCode BankCode, string? BankName);
 
     public static Expression<Func<Transaction, TransactionDto>> Projection
         => x => new TransactionDto(

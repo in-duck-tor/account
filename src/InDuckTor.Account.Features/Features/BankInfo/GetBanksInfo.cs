@@ -1,6 +1,6 @@
-﻿using InDuckTor.Account.Features.Common;
-using InDuckTor.Account.Features.Models;
+﻿using InDuckTor.Account.Domain;
 using InDuckTor.Account.Infrastructure.Database;
+using InDuckTor.Shared.Models;
 using InDuckTor.Shared.Strategies;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,7 +8,7 @@ namespace InDuckTor.Account.Features.BankInfo;
 
 /// <param name="BankCode">БИК</param>
 /// <param name="Name"></param>
-public record BankInfo(string BankCode, string? Name);
+public record BankInfo(BankCode BankCode, string? Name);
 
 public interface IGetBanksInfo : IQuery<Unit, BankInfo[]>;
 

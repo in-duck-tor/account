@@ -2,10 +2,12 @@
 using FluentResults.Extensions;
 using InDuckTor.Account.Domain;
 using InDuckTor.Account.Features.Models;
+using InDuckTor.Account.Features.Utils;
 using InDuckTor.Account.Infrastructure.Database;
 using InDuckTor.Shared.Security.Context;
 using InDuckTor.Shared.Strategies;
 using Microsoft.EntityFrameworkCore;
+using ResultExtensions = InDuckTor.Account.Features.Utils.ResultExtensions;
 
 namespace InDuckTor.Account.Features.Common;
 
@@ -23,50 +25,59 @@ public class CreateTransaction(AccountsDbContext context, ISecurityContext secur
             .Map(transaction =>
             {
                 transaction.Status = TransactionStatus.Pending;
+                context.Transactions.Add(transaction);
                 return transaction;
             });
 
-    // todo refactor
+
+    private static readonly Error Forbid = new Errors.Forbidden();
+
     private async ValueTask<Result<Transaction>> CreateNew(NewTransactionRequest request, TimeSpan ttl, CancellationToken ct)
     {
-        if (request is not { WithdrawFrom.BankCode: Domain.BankInfo.InDuckTorBankCode }
-            && request is not { DepositOn.BankCode: Domain.BankInfo.InDuckTorBankCode })
+        if (request.WithdrawFrom?.BankCode != Domain.BankInfo.InDuckTorBankCode
+            && request.DepositOn?.BankCode != Domain.BankInfo.InDuckTorBankCode)
             return new Errors.InvalidInput("Необходимо указать известный счёт отправитель или счёт получатель");
 
         var currantUser = securityContext.Currant;
-        TransactionTarget? withdrawFrom = null;
-        if (request.WithdrawFrom is { BankCode: Domain.BankInfo.InDuckTorBankCode })
-        {
-            var withdrawAccountNumber = request.WithdrawFrom.AccountNumber;
 
-            var account = await context.Accounts.FindAsync([ withdrawAccountNumber ], ct);
-            if (account is null) return new Errors.Account.NotFound(withdrawAccountNumber);
+        var withdrawFromResult = await TryCreateCreate(request.Amount, request.WithdrawFrom,
+            account => Result.OkIf(account.CanUserWithdraw(currantUser), Forbid),
+            ct);
 
-            if (!account.CanUserWithdraw(currantUser)) return new Errors.Forbidden();
+        var depositOnResult = await TryCreateCreate(request.Amount, request.DepositOn,
+            account => Result.OkIf(account.CanUserDeposit(currantUser), Forbid),
+            ct);
 
-            withdrawFrom = new TransactionTarget(request.Amount, account.Number, account.CurrencyCode, account.BankCode);
-        }
+        return withdrawFromResult.Merge(depositOnResult)
+            .Bind(Result<Transaction> (targets) =>
+            {
+                var (withdrawFrom, depositOn) = targets;
+                if (withdrawFrom != null
+                    && depositOn != null
+                    && withdrawFrom.CurrencyCode != depositOn.CurrencyCode)
+                    // todo
+                    return new Errors.Conflict("Переводы с разными валютами не реализованы");
 
-        TransactionTarget? depositOn = null;
-        if (request.DepositOn is { BankCode: Domain.BankInfo.InDuckTorBankCode })
-        {
-            var depositAccountNumber = request.DepositOn.AccountNumber;
-
-            var account = await context.Accounts.FindAsync([ depositAccountNumber ], ct);
-            if (account is null) return new Errors.Account.NotFound(depositAccountNumber);
-
-            if (!account.CanUserDeposit(currantUser)) return new Errors.Forbidden();
-
-            depositOn = new TransactionTarget(request.Amount, account.Number, account.CurrencyCode, account.BankCode);
-        }
-
-        withdrawFrom ??= new TransactionTarget(request.Amount, request.WithdrawFrom!.AccountNumber, depositOn!.CurrencyCode, request.WithdrawFrom.BankCode);
-        depositOn ??= new TransactionTarget(request.Amount, request.DepositOn!.AccountNumber, withdrawFrom!.CurrencyCode, request.DepositOn.BankCode);
-
-        if (withdrawFrom.CurrencyCode != depositOn.CurrencyCode) throw new NotImplementedException("Переводы с разными валютами не реализованы");
-
-        return new Transaction(depositOn, withdrawFrom, ttl, currantUser.Id);
+                return new Transaction(depositOn, withdrawFrom, ttl, currantUser.Id);
+            });
     }
+
+    private async ValueTask<Result<TransactionTarget?>> TryCreateCreate(decimal amount, NewTransactionRequest.Target? requestTarget, Func<Domain.Account, Result> checkAccount, CancellationToken ct)
+    {
+        if (requestTarget is null) return Result.Ok<TransactionTarget?>(null);
+
+        if (requestTarget.BankCode != Domain.BankInfo.InDuckTorBankCode)
+            return new TransactionTarget(amount, requestTarget.AccountNumber, null, requestTarget.BankCode);
+
+        var account = await context.Accounts.FindAsync([ requestTarget.AccountNumber ], ct);
+        if (account is null) return new Errors.Account.NotFound(requestTarget.AccountNumber);
+
+        var result = checkAccount(account);
+        if (result.IsFailed) return result;
+
+        return new TransactionTarget(amount, account.Number, account.CurrencyCode, account.BankCode);
+    }
+
 
     private async ValueTask<Result<Transaction>> EnsureAccountAmount(Transaction transaction, CancellationToken ct)
     {

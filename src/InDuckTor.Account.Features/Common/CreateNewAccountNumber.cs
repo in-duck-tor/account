@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InDuckTor.Account.Features.Common;
 
-public record struct NewAccountNumberArgs(AccountType AccountType, Currency Currency, DateTime? PlannedExpiration);
+public record struct NewAccountNumberArgs(AccountType AccountType, BankCode BankCode, Currency Currency, DateTime? PlannedExpiration = null);
 
 public interface ICreateNewAccountNumber : IStrategy<NewAccountNumberArgs, AccountNumber>;
 
@@ -21,7 +21,7 @@ public class CreateNewAccountNumber(AccountsDbContext dbContext) : ICreateNewAcc
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        return AccountNumber.CreatePaymentAccountNumber(balanceAccountCode, input.Currency.NumericCode, accountPersonalCode);
+        return AccountNumber.CreatePaymentAccountNumber(input.BankCode, balanceAccountCode, input.Currency.NumericCode, accountPersonalCode);
     }
 
     private int GetLoanAccountCode(DateTime? plannedExpiration)
@@ -51,7 +51,7 @@ public class CreateNewAccountNumber(AccountsDbContext dbContext) : ICreateNewAcc
         await using var dbCommand = dbConnection.CreateCommand();
         dbCommand.CommandText = $"SELECT nextval('{sequenceNameFullQuantified}')";
         var value = await dbCommand.ExecuteScalarAsync(ct);
-        
+
         ArgumentNullException.ThrowIfNull(value, "Запрос на получение id для счёта вернул null");
         return (long)value;
     }

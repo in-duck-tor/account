@@ -17,27 +17,27 @@ public class SearchAccounts(AccountsDbContext context) : ISearchAccounts
     {
         var query = context.Accounts.AsQueryable();
 
-        query = input.OwnerId.HasValue ? query.Where(x => x.OwnerId == input.OwnerId) : query;
-        query = input.AccountType.HasValue ? query.Where(x => x.Type == input.AccountType) : query;
-        query = input.AccountState.HasValue ? query.Where(x => x.State == input.AccountState) : query;
+        query = input.OwnerId.HasValue ? query.Where(x => x.OwnerId == input.OwnerId.Value) : query;
+        query = input.AccountType.HasValue ? query.Where(x => x.Type == input.AccountType.Value) : query;
+        query = input.AccountState.HasValue ? query.Where(x => x.State == input.AccountState.Value) : query;
         var countQuery = query;
 
         query = input.Skip.HasValue ? query.Skip(input.Skip.Value) : query;
         query = input.Take.HasValue ? query.Take(int.Min(input.Take ?? DefaultTake, MaxTake)) : query;
-        var itemsQuery = query.Select(x => new AccountDto(
-            x.Number,
-            x.Currency.Code,
-            x.BankCode,
-            x.OwnerId,
-            x.CreatedBy,
-            x.Amount,
-            x.State,
-            x.Type,
-            x.CustomComment,
-            x.GrantedUsers.Select(user => new AccountDto.GrantedUser(user.Id, user.Actions)).ToArray()));
+        var entities = await query.ToListAsync(ct);
+        var items = entities.Select(x => new AccountDto(
+                x.Number,
+                x.CurrencyCode,
+                x.BankCode,
+                x.OwnerId,
+                x.CreatedBy,
+                x.Amount,
+                x.State,
+                x.Type,
+                x.CustomComment,
+                x.GrantedUsers.Select(user => new AccountDto.GrantedUser(user.Id, user.Actions)).ToArray()))
+            .ToList();
 
-        return new CollectionSearchResult<AccountDto>(
-            Total: await countQuery.CountAsync(ct),
-            Items: await itemsQuery.ToListAsync(ct));
+        return new CollectionSearchResult<AccountDto>(await countQuery.CountAsync(ct), items);
     }
 }

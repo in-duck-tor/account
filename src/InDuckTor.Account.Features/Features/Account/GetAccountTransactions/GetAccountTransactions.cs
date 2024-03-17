@@ -16,7 +16,6 @@ public class GetAccountTransactions(AccountsDbContext context) : IGetAccountTran
 
     public async Task<Result<TransactionDto[]>> Execute(GetAccountTransactionsParams input, CancellationToken ct)
     {
-        // todo test nulls and implicit conversion
         var query = context.Transactions
             .Where(Specifications.Transaction.RelatedToAccount(input.AccountNumber))
             .Select(TransactionDto.Projection);

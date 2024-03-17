@@ -1,4 +1,6 @@
-﻿using FluentResults;
+﻿using System.ComponentModel;
+using FluentResults;
+using InDuckTor.Account.Domain;
 using InDuckTor.Account.Features.Account.CreateAccount;
 using InDuckTor.Account.Features.Account.GetAccountTransactions;
 using InDuckTor.Account.Features.Account.SearchAccounts;
@@ -44,7 +46,7 @@ public static class AccountEndpoints
     [ProducesResponseType(403)]
     [ProducesResponseType(404)]
     [ProducesResponseType<CreateAccountResult>(200)]
-    internal static async Task<IResult/*Results<Ok<CreateAccountResult>, IResult>*/> CreateAccount(
+    internal static async Task<IResult> CreateAccount(
         [FromBody] CreateAccountRequest request,
         [FromServices] IExecutor<ICreateAccount, CreateAccountRequest, Result<CreateAccountResult>> createAccount,
         CancellationToken cancellationToken)

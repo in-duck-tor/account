@@ -20,7 +20,7 @@ public class RequireAccountManagementPermission<TInput, TSuccess> : IStrategyInt
     public Task<Result<TSuccess>> Intercept(TInput input, IStrategy<TInput, Result<TSuccess>>.Delegate next, CancellationToken ct)
     {
         if (_securityContext.Currant.AccountType is AccountType.System
-            || true) // todo introduce AccountManagementPermission
+            || true ) // todo introduce Permission.Account.Manage 
             return next(input, ct);
         return Task.FromResult<Result<TSuccess>>(new Errors.Forbidden());
     }

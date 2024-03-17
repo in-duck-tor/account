@@ -14,12 +14,13 @@ public class CancelTransaction(AccountsDbContext context) : ICancelTransaction
         var transaction = await context.Transactions.FindAsync([ transactionId ], ct);
         if (transaction is null) return new Errors.Transaction.NotFound(transactionId);
 
-        var result = transaction.Cancel();
-        if (result.IsSuccess)
-        {
-            await context.SaveChangesAsync(ct);
-        }
+        return await transaction.Cancel().Bind(DeleteReservations);
 
-        return result;
+        async Task<Result> DeleteReservations(FundsReservation[] cancelledReservations)
+        {
+            context.FundsReservations.RemoveRange(cancelledReservations);
+            await context.SaveChangesAsync(ct);
+            return Result.Ok();
+        }
     }
 }

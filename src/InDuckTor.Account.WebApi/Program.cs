@@ -3,10 +3,9 @@ using InDuckTor.Account.Features.Common;
 using InDuckTor.Account.Infrastructure.Database;
 using InDuckTor.Account.WebApi.Configuration;
 using InDuckTor.Account.WebApi.Endpoints;
-using InDuckTor.Shared.Security;
+using InDuckTor.Shared.Security.Http;
 using InDuckTor.Shared.Security.Jwt;
 using InDuckTor.Shared.Strategies;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;

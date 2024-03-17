@@ -1,6 +1,5 @@
 ﻿using FluentResults;
 using InDuckTor.Account.Domain;
-using InDuckTor.Account.Features.Common;
 using InDuckTor.Account.Features.Models;
 using InDuckTor.Account.Infrastructure.Database;
 using InDuckTor.Shared.Security.Context;
@@ -10,7 +9,7 @@ using AccountType = InDuckTor.Account.Domain.AccountType;
 
 namespace InDuckTor.Account.Features.PaymentAccount;
 
-public record GetAccountTransactionsParams(string AccountNumber, int? Take, int? Skip);
+public record GetAccountTransactionsParams(AccountNumber AccountNumber, int? Take, int? Skip);
 
 public interface IGetAccountTransactions : IQuery<GetAccountTransactionsParams, Result<TransactionDto[]>>;
 
@@ -28,7 +27,8 @@ public class GetAccountTransactions(AccountsDbContext context, ISecurityContext 
 
         if (!account.CanUserRead(securityContext.Currant)) return new Errors.Forbidden();
 
-        var query = context.Transactions.Where(Specifications.Transaction.RelatedToAccount(input.AccountNumber))
+        var query = context.Transactions
+            .Where(Specifications.Transaction.RelatedToAccount(input.AccountNumber))
             .Select(TransactionDto.Projection);
 
         query = input.Skip.HasValue ? query.Skip(input.Skip.Value) : query;

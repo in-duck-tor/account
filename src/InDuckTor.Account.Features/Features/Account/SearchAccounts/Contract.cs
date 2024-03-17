@@ -23,7 +23,7 @@ public record AccountsSearchParams(
 public record AccountDto(
     string Number,
     string CurrencyCode,
-    string BankCode,
+    BankCode BankCode,
     int OwnerId,
     int CreatedBy,
     decimal Amount,

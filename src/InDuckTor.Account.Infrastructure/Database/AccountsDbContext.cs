@@ -2,6 +2,7 @@
 using InDuckTor.Account.Domain;
 using InDuckTor.Account.Infrastructure.Database.EntitiesConfiguration;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace InDuckTor.Account.Infrastructure.Database;
 
@@ -36,5 +37,6 @@ public class AccountsDbContext : DbContext
     {
         base.ConfigureConventions(configurationBuilder);
         configurationBuilder.Properties<AccountNumber>().HaveConversion<AccountNumberConverter>();
+        configurationBuilder.Properties<BankCode>().HaveConversion<BankCodeConverter>();
     }
 }

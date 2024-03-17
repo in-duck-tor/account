@@ -26,7 +26,7 @@ public class Account
 
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
 
-    public string BankCode { get; init; } = BankInfo.InDuckTorBankCode;
+    public BankCode BankCode { get; init; } = BankInfo.InDuckTorBankCode;
     public BankInfo BankInfo { get; set; }
 
     /// <summary>
@@ -72,7 +72,7 @@ public class Account
                         || userContext.AccountType == UserAccountType.System);
 
     private bool HasUserAction(int userId, AccountAction action)
-        => GrantedUsers.Any(granted => granted.Id == userId && granted.Actions.Contains(AccountAction.Close));
+        => GrantedUsers.Any(granted => granted.Id == userId && granted.Actions.Contains(action));
 
     public Result Freeze()
     {
@@ -90,22 +90,10 @@ public class Account
 
     public Result Close()
     {
-        if (State != AccountState.Closed) return new Errors.Conflict("Счёт уже закрыт");
+        if (State == AccountState.Closed) return new Errors.Conflict("Счёт уже закрыт");
         State = AccountState.Closed;
         return Result.Ok();
     }
-}
-
-public record struct AccountNumber(string Value)
-{
-    /// <param name="balanceAccountCode">Код балансового счёта 2 порядка</param>
-    /// <param name="currencyNumericCode"></param>
-    /// <param name="accountId">Внутренний номер счёта</param>
-    public static AccountNumber CreatePaymentAccountNumber(int balanceAccountCode, int currencyNumericCode, long accountId)
-        => $"{balanceAccountCode:D5}{currencyNumericCode:D3}{0}{accountId:D11}";
-
-    public static implicit operator string(AccountNumber number) => number.Value;
-    public static implicit operator AccountNumber(string stringNumber) => new(stringNumber);
 }
 
 public enum AccountType
@@ -113,19 +101,19 @@ public enum AccountType
     /// <summary>
     /// Расчётный счёт
     /// </summary>
-    [EnumMember(Value = "payment")] Payment,
+    [EnumMember(Value = "payment")] Payment = 1,
 
     /// <summary>
     /// Ссудный счёт
     /// </summary>
-    [EnumMember(Value = "loan")] Loan,
+    [EnumMember(Value = "loan")] Loan = 2,
 }
 
 public enum AccountState
 {
-    [EnumMember(Value = "active")] Active,
-    [EnumMember(Value = "closed")] Closed,
-    [EnumMember(Value = "frozen")] Frozen
+    [EnumMember(Value = "active")] Active = 1,
+    [EnumMember(Value = "closed")] Closed = 2,
+    [EnumMember(Value = "frozen")] Frozen = 3
 }
 
 /// <summary>
@@ -136,27 +124,27 @@ public enum AccountAction
     /// <summary>
     /// Внесение средств	
     /// </summary>
-    [EnumMember(Value = "deposit")] Deposit,
+    [EnumMember(Value = "deposit")] Deposit = 1,
 
     /// <summary>
     /// Вывод средств
     /// </summary>
-    [EnumMember(Value = "withdraw")] Withdraw,
+    [EnumMember(Value = "withdraw")] Withdraw = 2,
 
     /// <summary>
     /// Заморозить счёт
     /// </summary>
-    [EnumMember(Value = "freeze")] Freeze,
+    [EnumMember(Value = "freeze")] Freeze = 3,
 
     /// <summary>
     /// Закрыть счёт
     /// </summary>
-    [EnumMember(Value = "close")] Close,
+    [EnumMember(Value = "close")] Close = 4,
 
     /// <summary>
     /// Читать операции по счёту
     /// </summary>
-    [EnumMember(Value = "read")] ReadOperations,
+    [EnumMember(Value = "read")] ReadOperations = 5,
 }
 
 /// <summary>

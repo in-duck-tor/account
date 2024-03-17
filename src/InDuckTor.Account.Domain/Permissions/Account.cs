@@ -8,6 +8,10 @@ public static partial class Permission
         /// Разрешение информацию по любым счётам
         /// </summary>
         public const string Read = "account.read";
+
+        /// <summary>
+        /// Управлять всеми счётами
+        /// </summary>
         public const string Manage = "account.manage";
     }
 }

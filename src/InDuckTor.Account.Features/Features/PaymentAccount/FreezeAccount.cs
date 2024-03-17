@@ -6,7 +6,7 @@ using InDuckTor.Shared.Strategies;
 
 namespace InDuckTor.Account.Features.PaymentAccount;
 
-public readonly record struct FreezeAccountRequest(string AccountNumber, bool Unfreeze = false);
+public readonly record struct FreezeAccountRequest(AccountNumber AccountNumber, bool Unfreeze = false);
 
 /// <summary>
 /// Принимает номер счёта и замораживает его

@@ -31,11 +31,11 @@ public class CommitTransaction(AccountsDbContext context) : ICommitTransaction
 
         // проверки прав нет, посчитаем Id трансакции уже секретом
         var result = transaction.Commit();
-        if (result.IsSuccess)
-        {
-            await context.SaveChangesAsync(ct);
-        }
-
-        return result;
+        if (!result.IsSuccess) return result.ToResult();
+        
+        var committedReservations = result.Value;
+        context.FundsReservations.RemoveRange(committedReservations);
+        await context.SaveChangesAsync(ct);
+        return Result.Ok();
     }
 }

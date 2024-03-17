@@ -1,6 +1,7 @@
 using InDuckTor.Account.Features.BankInfo;
 using InDuckTor.Account.Features.Common;
 using InDuckTor.Account.Features.Models;
+using InDuckTor.Shared.Models;
 using InDuckTor.Shared.Strategies;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;

@@ -10,7 +10,9 @@ using AccountType = InDuckTor.Account.Domain.AccountType;
 
 namespace InDuckTor.Account.Features.PaymentAccount;
 
-public interface IMakeTransaction : ICommand<NewTransactionRequest, Result<IdResult<long>>>;
+public record MakeTransactionResult(long TransactionId, TransactionType TransactionType, TransactionStatus Status);
+
+public interface IMakeTransaction : ICommand<NewTransactionRequest, Result<MakeTransactionResult>>;
 
 public class MakeTransaction(
     AccountsDbContext context,
@@ -18,17 +20,17 @@ public class MakeTransaction(
     IExecutor<ICommitTransaction, long, Result> commitTransaction)
     : IMakeTransaction
 {
-    public Task<Result<IdResult<long>>> Execute(NewTransactionRequest input, CancellationToken ct)
-        => createTransaction.Execute(new CreateTransactionParams(input) , ct)
+    public Task<Result<MakeTransactionResult>> Execute(NewTransactionRequest input, CancellationToken ct)
+        => createTransaction.Execute(new CreateTransactionParams(input), ct)
             .Bind(transaction => EnsureTransactionAccountTypes(transaction, ct))
             .Bind(async transaction =>
             {
-                await ScheduleTransactionRoutine(transaction, ct);
                 await context.SaveChangesAsync(ct);
-                return Result.Ok(new IdResult<long>(transaction.Id));
+                await ScheduleTransactionRoutine(transaction, ct);
+                return Result.Ok(new MakeTransactionResult(transaction.Id, transaction.Type, transaction.Status));
             });
 
-    private async Task<Result<Transaction>> EnsureTransactionAccountTypes(Transaction transaction, CancellationToken ct) 
+    private async Task<Result<Transaction>> EnsureTransactionAccountTypes(Transaction transaction, CancellationToken ct)
         => await EnsureAccountType(transaction.DepositOn, ct)
            && await EnsureAccountType(transaction.WithdrawFrom, ct)
             ? transaction
