@@ -19,9 +19,7 @@ public class OpenTransactionRequest
     /// <summary>
     /// Запрашиваемое максимальное время жизни трансакции в секундах 
     /// </summary>
-    public Kostil_RequestedTransactionTtl? RequestedTransactionTtl { get; set; }
-
-    public record Kostil_RequestedTransactionTtl(double? Ticks);
+    public double? RequestedTransactionTtl { get; set; }
 }
 
 public record OpenTransactionResult(long TransactionId, TransactionType TransactionType, TransactionStatus Status, DateTime AutoCloseAt);
@@ -36,7 +34,7 @@ public class OpenTransaction(
 {
     public async Task<Result<OpenTransactionResult>> Execute(OpenTransactionRequest input, CancellationToken ct)
     {
-        TimeSpan? ttl = input.RequestedTransactionTtl?.Ticks != null ? TimeSpan.FromSeconds(input.RequestedTransactionTtl!.Ticks.Value) : null;
+        TimeSpan? ttl = input.RequestedTransactionTtl != null ? TimeSpan.FromSeconds(input.RequestedTransactionTtl.Value) : null;
         var result = await createTransaction.Execute(new CreateTransactionParams(input.NewTransaction, ttl), ct);
         if (!result.IsSuccess) return result.ToResult();
         
