@@ -4,10 +4,11 @@ ARG GH_USERNAME
 ARG GH_TOKEN
 
 WORKDIR /app 
-COPY . .
-
+COPY ./src/*.csproj ./src
 RUN dotnet nuget update source github.in-duck-tor -u $GH_USERNAME -p $GH_TOKEN --store-password-in-clear-text
 RUN dotnet restore --runtime linux-x64 
+
+COPY . .
 RUN dotnet build -c Release --no-restore
 RUN dotnet publish -c Release -o ./publish/ --no-restore 
 
