@@ -34,8 +34,11 @@ public class CreateTransaction(AccountsDbContext context, ISecurityContext secur
 
     private async ValueTask<Result<Transaction>> CreateNew(NewTransactionRequest request, TimeSpan ttl, CancellationToken ct)
     {
-        if (request.WithdrawFrom?.BankCode != Domain.BankInfo.InDuckTorBankCode
-            && request.DepositOn?.BankCode != Domain.BankInfo.InDuckTorBankCode)
+        if (request is
+            {
+                WithdrawFrom.BankCode.IsExternal: true, 
+                DepositOn.BankCode.IsExternal: true
+            })
             return new Errors.InvalidInput("Необходимо указать известный счёт отправитель или счёт получатель");
 
         var currantUser = securityContext.Currant;
@@ -81,7 +84,7 @@ public class CreateTransaction(AccountsDbContext context, ISecurityContext secur
 
     private async ValueTask<Result<Transaction>> EnsureAccountAmount(Transaction transaction, CancellationToken ct)
     {
-        if (transaction is not { WithdrawFrom.InExternal: false }) return transaction;
+        if (transaction is not { WithdrawFrom.IsExternal: false }) return transaction;
 
         var account = await context.Accounts.FindAsync([ transaction.WithdrawFrom.AccountNumber ], ct);
         var fundsReservations = await context.FundsReservations
@@ -98,7 +101,7 @@ public class CreateTransaction(AccountsDbContext context, ISecurityContext secur
 
     private Result<Transaction> AddFundsReservation(Transaction transaction)
     {
-        if (transaction is not { WithdrawFrom.InExternal: false }) return transaction;
+        if (transaction is not { WithdrawFrom.IsExternal: false }) return transaction;
 
         var fundsReservation = new FundsReservation
         {

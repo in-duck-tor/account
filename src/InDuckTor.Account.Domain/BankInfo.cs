@@ -40,4 +40,6 @@ public record struct BankCode(int Value) : IParsable<BankCode>
     public static bool TryParse(string? codeValue, IFormatProvider? provider, out BankCode result) => TryParse(codeValue, out result);
 
     public override string ToString() => Value.ToString("D9");
+    
+    public bool IsExternal => Value != BankInfo.InDuckTorBankCode.Value;
 }

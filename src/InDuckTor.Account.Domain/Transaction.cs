@@ -163,5 +163,5 @@ public record TransactionTarget(decimal Amount, AccountNumber AccountNumber, str
 {
     public BankInfo BankInfo { get; init; } = null!;
 
-    public bool InExternal => BankCode != BankInfo.InDuckTorBankCode;
+    public bool IsExternal => BankCode.IsExternal;
 }

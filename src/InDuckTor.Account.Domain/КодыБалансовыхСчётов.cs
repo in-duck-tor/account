@@ -1,8 +1,14 @@
 namespace InDuckTor.Account.Domain;
 
-// todo Подумать как гибко поддерживать все виды счётов
+// todo : Подумать как гибко поддерживать все виды счётов
 public static class КодыБалансовыхСчётов
 {
+    public static class ДенежныеСредства
+    {
+        public const int КодПервогоПорядка = 202;
+        public const int КассаКредитнойОрганизации = 20202;
+    }
+    
     public static class ПрочиеСчёта
     {
         public const int КодПервогоПорядка = 408;
@@ -20,4 +26,5 @@ public static class КодыБалансовыхСчётов
         public const int Более3Лет = 45507;
         public const int ДоВостребования = 45508;
     }
+    
 }

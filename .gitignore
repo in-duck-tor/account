@@ -282,3 +282,5 @@ global.json
 
 #Verify
 *.received.*
+
+src/InDuckTor.Account.HttpClient

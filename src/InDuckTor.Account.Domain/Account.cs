@@ -106,6 +106,11 @@ public enum AccountType
     /// Ссудный счёт
     /// </summary>
     [EnumMember(Value = "loan")] Loan = 2,
+
+    /// <summary>
+    /// Касса из которой ведется расчёт наличными; относится к счёту 20202 
+    /// </summary>
+    [EnumMember(Value = "cash_register")] CashRegister = 3,
 }
 
 public enum AccountState

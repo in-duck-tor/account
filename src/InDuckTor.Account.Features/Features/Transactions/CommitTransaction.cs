@@ -17,13 +17,13 @@ public class CommitTransaction(AccountsDbContext context) : ICommitTransaction
         var transaction = await context.Transactions.FindAsync([ transactionId ], ct);
         if (transaction is null) return new DomainErrors.Transaction.NotFound(transactionId);
 
-        if (transaction is { WithdrawFrom.InExternal: false })
+        if (transaction is { WithdrawFrom.IsExternal: false })
         {
             var account = await context.Accounts.FindAsync([ transaction.WithdrawFrom.AccountNumber ], ct);
             account!.Amount -= transaction.WithdrawFrom.Amount;
         }
 
-        if (transaction is { DepositOn.InExternal: false })
+        if (transaction is { DepositOn.IsExternal: false })
         {
             var account = await context.Accounts.FindAsync([ transaction.DepositOn.AccountNumber ], ct);
             account!.Amount += transaction.DepositOn.Amount;

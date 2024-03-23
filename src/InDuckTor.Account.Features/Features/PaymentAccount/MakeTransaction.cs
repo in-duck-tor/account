@@ -39,7 +39,7 @@ public class MakeTransaction(
 
     private async ValueTask<bool> EnsureAccountType(TransactionTarget? target, CancellationToken ct)
         => target is null
-           || target.InExternal
+           || target.IsExternal
            || (await context.Accounts.FindAsync([ target.AccountNumber ], ct))?.Type == AccountType.Payment;
 
     // todo use hangfire

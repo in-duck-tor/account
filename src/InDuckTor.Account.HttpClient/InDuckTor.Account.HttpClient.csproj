@@ -1,30 +1,52 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
-
     <ItemGroup>
+        <PackageReference Include="NSwag.ApiDescription.Client" Version="14.0.3">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="14.0.3"/>
         <PackageReference Include="NSwag.MSBuild" Version="14.0.3">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\InDuckTor.Account.WebApi\InDuckTor.Account.WebApi.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <OpenApiReference Include="swagger.json" SourceUrl="https://localhost:7280/swagger/v1/swagger.json"/>
+    </ItemGroup>
+
+
     <PropertyGroup>
-        <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+        <NSwagGenerateExceptionClasses>true</NSwagGenerateExceptionClasses>
     </PropertyGroup>
-
-<!--    todo-->
     <Target Name="NSwag" AfterTargets="Build">
-        <Exec EnvironmentVariables="ASPNETCORE_ENVIRONMENT=Development" Command="$(NSwagExe) aspnetcore2openapi /assembly:$(TargetDir)MyWebAssembly.dll /output:swagger.json" />
-        <Exec Command="$(NSwagExe) openapi2tsclient /input:swagger.json /output:Scripts/MyController.ts" />
+        <!--        <Exec EnvironmentVariables="ASPNETCORE_ENVIRONMENT=Development" Command="$(NSwagExe_Net80) aspnetcore2openapi /project:$(SolutionDir)src\InDuckTor.Account.WebApi\InDuckTor.Account.WebApi.csproj /output:swagger.json"/>-->
+        <!--        <Exec Command="$(NSwagExe_Net80) openapi2csclient /input:swagger.json /output:Scripts/AccountHttpClient.cs"/>-->
+        <Exec Command="$(NSwagExe_Net80) run nswag.json /variables:Configuration=$(Configuration)"/>
     </Target>
-    
-<!--    <Target Name="NSwag" AfterTargets="PostBuildEvent" Condition=" '$(Configuration)' == 'Debug' ">-->
-<!--        <Exec WorkingDirectory="$(ProjectDir)" EnvironmentVariables="ASPNETCORE_ENVIRONMENT=Development" Command="$(NSwagExe) run nswag.json /variables:Configuration=$(Configuration)"/>-->
-<!--    </Target>-->
 
+    <!--  <ItemGroup>-->
+    <!--    <None Update="nswag.json">-->
+    <!--      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>-->
+    <!--    </None>-->
+    <!--  </ItemGroup>-->
+
+    <!--    <Target Name="NSwag" AfterTargets="PostBuildEvent" Condition=" '$(Configuration)' == 'Debug' ">-->
+    <!--        <Exec WorkingDirectory="$(ProjectDir)" EnvironmentVariables="ASPNETCORE_ENVIRONMENT=Development" Command="$(NSwagExe) run nswag.json /variables:Configuration=$(Configuration)"/>-->
+    <!--    </Target>-->
+    <!--  <PropertyGroup>-->
+    <!--    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>-->
+    <!--  </PropertyGroup>-->
+    <!--  <Target Name="NSwag" AfterTargets="PostBuildEvent" Condition=" '$(Configuration)' == 'Debug' ">-->
+    <!--    <Exec Command="$(NSwagExe_Net80) run nswag.json /variables:Configuration=$(Configuration)" />-->
+    <!--  </Target>-->
 </Project>

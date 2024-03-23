@@ -18,13 +18,14 @@ public class CreateNewAccountNumber(AccountsDbContext dbContext) : ICreateNewAcc
         {
             AccountType.Payment => КодыБалансовыхСчётов.ПрочиеСчёта.ФизическиеЛица,
             AccountType.Loan => GetLoanAccountCode(input.PlannedExpiration),
+            AccountType.CashRegister => КодыБалансовыхСчётов.ДенежныеСредства.КассаКредитнойОрганизации,
             _ => throw new ArgumentOutOfRangeException()
         };
 
         return AccountNumber.CreatePaymentAccountNumber(input.BankCode, balanceAccountCode, input.Currency.NumericCode, accountPersonalCode);
     }
 
-    private int GetLoanAccountCode(DateTime? plannedExpiration)
+    private static int GetLoanAccountCode(DateTime? plannedExpiration)
     {
         var duration = plannedExpiration - DateTime.UtcNow;
         return duration?.Days switch
