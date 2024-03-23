@@ -41,7 +41,7 @@ public class CreateAccount : ICreateAccount
             OwnerId = input.ForUserId,
             CustomComment = input.CustomComment,
             BankCode = Domain.BankInfo.InDuckTorBankCode,
-            GrantedUsers = [ new GrantedAccountUser(input.ForUserId, [ AccountAction.Freeze, AccountAction.Withdraw, AccountAction.ReadOperations ]) ]
+            GrantedUsers = [ new GrantedAccountUser(input.ForUserId, AllAccountActions) ]
         };
 
         _context.Add(account);
@@ -49,4 +49,6 @@ public class CreateAccount : ICreateAccount
 
         return new CreateAccountResult(account.Number);
     }
+
+    private static readonly AccountAction[] AllAccountActions = [ AccountAction.Withdraw, AccountAction.Freeze, AccountAction.ReadOperations, AccountAction.Close ];
 }

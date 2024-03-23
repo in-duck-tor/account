@@ -18,5 +18,5 @@ RUN dotnet publish -c Release -o ./publish/ --no-restore
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 as runtime
 WORKDIR /app
 COPY --from=build /app/publish .
-ENV ASPNETCORE_URLS=http://*:8080
+ENV ASPNETCORE_URLS=http://*:80;https://*:443
 ENTRYPOINT ["dotnet", "InDuckTor.Account.WebApi.dll"]
