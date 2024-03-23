@@ -13,27 +13,48 @@ public record struct AccountNumber(string Value) : IParsable<AccountNumber>
         const int controlNumberIndex = 3 + 5 + 3;
         Span<byte> numbers = stackalloc byte[23];
         numbers[controlNumberIndex] = 0;
-        string bankCodeLastNumbers = (bankCode.Value % 1000).ToString("D3");
-        Encoding.UTF8.GetBytes(bankCodeLastNumbers, numbers);
+        TakeDigits(bankCode.Value, 3, numbers);
 
         var accountNumberData = numbers[3..];
-        Encoding.UTF8.GetBytes(balanceAccountCode.ToString("D5"), accountNumberData);
-        Encoding.UTF8.GetBytes(currencyNumericCode.ToString("D3"), accountNumberData[5..]);
-        Encoding.UTF8.GetBytes(accountId.ToString("D11"), accountNumberData[(5 + 3 + 1)..]);
+        TakeDigits(balanceAccountCode, 5, accountNumberData);
+        TakeDigits(currencyNumericCode, 3, accountNumberData[5..]);
+        TakeDigits(accountId, 11, accountNumberData[(5 + 3 + 1)..]);
 
         numbers[controlNumberIndex] = ControlNumbersGenerator.Create(
             numbers,
             ControlNumberWeights,
             controlNumberIndex);
 
+        for (int i = 0; i < accountNumberData.Length; ++i)
+        {
+            accountNumberData[i] += (byte)'0';
+        }
+
         return Encoding.UTF8.GetString(accountNumberData);
+    }
+
+    private static void TakeDigits(long value, int digitCount, Span<byte> outDigits)
+    {
+        for (int i = digitCount - 1; i >= 0; --i)
+        {
+            outDigits[i] = (byte)(value % 10);
+            value /= 10;
+        }
+    }
+
+    private static void TakeDigits(string value, int digitCount, Span<byte> outDigits)
+    {
+        for (int i = digitCount - 1; i >= 0; --i)
+        {
+            outDigits[i] = (byte)value[i];
+        }
     }
 
     public static bool VerifyControlNumber(AccountNumber accountNumber, BankCode bankCode)
     {
         Span<byte> numbers = stackalloc byte[23];
-        Encoding.UTF8.GetBytes(bankCode.Value.ToString("D3"), numbers);
-        Encoding.UTF8.GetBytes(accountNumber.Value, numbers[3..]);
+        TakeDigits(bankCode.Value, 3, numbers);
+        TakeDigits(accountNumber.Value, 20, numbers[3..]);
         return ControlNumbersGenerator.Verify(numbers, ControlNumberWeights);
     }
 

@@ -148,7 +148,7 @@ public enum AccountAction
     /// <summary>
     /// Читать операции по счёту
     /// </summary>
-    [EnumMember(Value = "read")] ReadOperations = 5,
+    [EnumMember(Value = "read")] ReadOperations = 5
 }
 
 /// <summary>
