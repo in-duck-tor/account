@@ -2,6 +2,7 @@
 using InDuckTor.Account.Domain;
 using InDuckTor.Account.Infrastructure.Database;
 using InDuckTor.Shared.Strategies;
+using Microsoft.EntityFrameworkCore;
 
 namespace InDuckTor.Account.Features.Transactions;
 
@@ -14,7 +15,8 @@ public class CommitTransaction(AccountsDbContext context) : ICommitTransaction
 {
     public async Task<Result> Execute(long transactionId, CancellationToken ct)
     {
-        var transaction = await context.Transactions.FindAsync([ transactionId ], ct);
+        var transaction = await context.Transactions.Include(x => x.Reservations)
+            .FirstOrDefaultAsync(x => x.Id == transactionId, ct);
         if (transaction is null) return new DomainErrors.Transaction.NotFound(transactionId);
 
         if (transaction is { WithdrawFrom.IsExternal: false })
