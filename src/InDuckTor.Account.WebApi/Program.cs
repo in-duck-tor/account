@@ -41,7 +41,7 @@ if (!app.Environment.IsProduction())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
 // todo использовать GW 
 app.UseCors();
