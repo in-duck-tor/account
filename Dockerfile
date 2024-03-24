@@ -16,6 +16,7 @@ RUN dotnet build -c Release --no-restore
 RUN dotnet publish -c Release -o ./publish/ --no-restore
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 as runtime
+VOLUME /app/certs
 WORKDIR /app
 COPY --from=build /app/publish .
 ENV ASPNETCORE_URLS=http://*:80;https://*:443
