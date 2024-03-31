@@ -23,15 +23,18 @@ public static class AccountEndpoints
             .RequireAuthorization();
 
         groupBuilder.MapPost("/bank/account", CreateAccount)
+            .WithName(nameof(CreateAccount))
             .WithDescription("Создать счёт");
 
         groupBuilder.MapPut("/bank/account/search", SearchAccounts)
             .WithDescription("Поиск по всем счётам");
 
         groupBuilder.MapGet("/bank/account/{accountNumber}/transaction", GetAccountTransactions)
+            .WithName(nameof(GetAccountTransactions))
             .WithDescription("Получить трансакции по счёту");
 
         groupBuilder.MapPost("/bank/account/transaction", OpenTransaction)
+            .WithName(nameof(OpenTransaction))
             .WithDescription("Начать трансакцию между счётами");
 
         groupBuilder.MapPost("/bank/account/transaction/{transactionId}/commit", CommitTransaction)
