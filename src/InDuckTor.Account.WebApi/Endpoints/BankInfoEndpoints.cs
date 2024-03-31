@@ -17,9 +17,11 @@ public static class BankInfoEndpoints
             .WithOpenApi();
 
         groupBuilder.MapGet("/bank", GetBanksInfo)
+            .WithName(nameof(GetBanksInfo))
             .WithDescription("Получение информации об известных банках");
 
         groupBuilder.MapGet("/bank/currency", GetCurrenciesInfo)
+            .WithName(nameof(GetCurrenciesInfo))
             .WithDescription("Получение информации об известных валютах");
 
         return builder;

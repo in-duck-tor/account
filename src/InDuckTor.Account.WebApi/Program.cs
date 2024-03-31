@@ -1,13 +1,12 @@
 using System.Reflection;
-using Confluent.Kafka;
-using Google.Protobuf.WellKnownTypes;
-using InDuckTor.Account.Contracts.Public;
+using InDuckTor.Account.Cbr.Integration;
 using InDuckTor.Account.Features.Common;
 using InDuckTor.Account.Infrastructure.Database;
+using InDuckTor.Account.Infrastructure.Hangfire;
 using InDuckTor.Account.Infrastructure.Kafka;
+using InDuckTor.Account.WebApi.BackgroundJobs;
 using InDuckTor.Account.WebApi.Configuration;
 using InDuckTor.Account.WebApi.Endpoints;
-using InDuckTor.Shared.Kafka;
 using InDuckTor.Shared.Security.Http;
 using InDuckTor.Shared.Security.Jwt;
 using InDuckTor.Shared.Strategies;
@@ -25,14 +24,17 @@ builder.Services.AddSerilog((provider, loggerConfiguration) =>
 });
 
 builder.Services.AddStrategiesFrom(Assembly.GetAssembly(typeof(ICreateTransaction))!);
+builder.Services.AddCbrIntegration();
 
 builder.Services.AddInDuckTorAuthentication(configuration.GetSection(nameof(JwtSettings)));
 builder.Services.AddAuthorization();
 builder.Services.AddInDuckTorSecurity();
 
-builder.Services.AddAccountsKafka(configuration.GetSection("Kafka"));
-
+builder.Services.AddAccountsKafka(configuration);
 builder.Services.AddAccountsDbContext(configuration);
+builder.Services.AddAccountsHangfire(configuration);
+
+builder.Services.AddHostedService<MaintanceBackGroundService>();
 
 builder.Services.AddProblemDetails()
     .ConfigureJsonConverters();
@@ -62,31 +64,5 @@ app.UseInDuckTorSecurity();
 app.AddPaymentAccountEndpoints()
     .AddBankingAccountEndpoints()
     .AddBankInfoEndpoints();
-
-// await Task.Run(async () =>
-// {
-//     while (true)
-//     {
-//         var cash = app.Services.CreateScope().ServiceProvider.GetRequiredService<AccountsDbContext>().Accounts.First(account => account.Type == InDuckTor.Account.Domain.AccountType.CashRegister);
-//         Thread.Sleep(TimeSpan.FromSeconds(20));
-//         var producer = app.Services.GetRequiredService<ITopicProducer<Null, AccountEnvelop>>();
-//         await producer.Produce(null!, new AccountEnvelop
-//             {
-//                 CorrelationId = Guid.NewGuid().ToString(),
-//                 CreatedAt = cash.CreatedAt.ToTimestamp(),
-//                 AccountCreated = new AccountCreated
-//                 {
-//                     Type = (AccountType)cash.Type,
-//                     State = (AccountState)cash.State,
-//                     AccountNumber = cash.Number,
-//                     CurrencyCode = cash.CurrencyCode,
-//                     GrantedUsers = { cash.GrantedUsers.Select(user => new GrantedAccountUser { Id = user.Id, Actions = { user.Actions.Select(action => (AccountAction)action) } }) },
-//                     OwnerId = cash.OwnerId,
-//                     CreatedById = cash.CreatedBy
-//                 }
-//             },
-//             default);
-//     }
-// });
 
 app.Run();

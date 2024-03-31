@@ -206,6 +206,7 @@ namespace InDuckTor.Account.Infrastructure.Database.Migrations
                                 .HasColumnType("integer");
 
                             b1.Property<string>("CurrencyCode")
+                                .IsRequired()
                                 .HasColumnType("text");
 
                             b1.HasKey("TransactionId");
@@ -213,6 +214,8 @@ namespace InDuckTor.Account.Infrastructure.Database.Migrations
                             b1.HasIndex("AccountNumber");
 
                             b1.HasIndex("BankCode");
+
+                            b1.HasIndex("CurrencyCode");
 
                             b1.ToTable("Transaction", "account");
 
@@ -222,10 +225,18 @@ namespace InDuckTor.Account.Infrastructure.Database.Migrations
                                 .OnDelete(DeleteBehavior.Cascade)
                                 .IsRequired();
 
+                            b1.HasOne("InDuckTor.Account.Domain.Currency", "Currency")
+                                .WithMany()
+                                .HasForeignKey("CurrencyCode")
+                                .OnDelete(DeleteBehavior.Cascade)
+                                .IsRequired();
+
                             b1.WithOwner()
                                 .HasForeignKey("TransactionId");
 
                             b1.Navigation("BankInfo");
+
+                            b1.Navigation("Currency");
                         });
 
                     b.OwnsOne("InDuckTor.Account.Domain.TransactionTarget", "WithdrawFrom", b1 =>
@@ -244,6 +255,7 @@ namespace InDuckTor.Account.Infrastructure.Database.Migrations
                                 .HasColumnType("integer");
 
                             b1.Property<string>("CurrencyCode")
+                                .IsRequired()
                                 .HasColumnType("text");
 
                             b1.HasKey("TransactionId");
@@ -251,6 +263,8 @@ namespace InDuckTor.Account.Infrastructure.Database.Migrations
                             b1.HasIndex("AccountNumber");
 
                             b1.HasIndex("BankCode");
+
+                            b1.HasIndex("CurrencyCode");
 
                             b1.ToTable("Transaction", "account");
 
@@ -260,10 +274,18 @@ namespace InDuckTor.Account.Infrastructure.Database.Migrations
                                 .OnDelete(DeleteBehavior.Cascade)
                                 .IsRequired();
 
+                            b1.HasOne("InDuckTor.Account.Domain.Currency", "Currency")
+                                .WithMany()
+                                .HasForeignKey("CurrencyCode")
+                                .OnDelete(DeleteBehavior.Cascade)
+                                .IsRequired();
+
                             b1.WithOwner()
                                 .HasForeignKey("TransactionId");
 
                             b1.Navigation("BankInfo");
+
+                            b1.Navigation("Currency");
                         });
 
                     b.Navigation("DepositOn");

@@ -31,7 +31,13 @@ public class Account
     /// <summary>
     /// <b>ДЕНЬГИ</b>
     /// </summary>
-    public decimal Amount { get; set; } = 0;
+    public decimal Amount { get; private set; } = 0;
+
+    public Money Money
+    {
+        get => new Money(Amount, Currency);
+        set => Amount = CurrencyCode == value.CurrencyCode ? value.Amount : throw new InvalidOperationException("Валютa переданных денежных средств не совпадает с валютой счёта");
+    }
 
     public AccountState State { get; set; } = AccountState.Active;
 

@@ -20,13 +20,16 @@ public static class PaymentAccountEndpoints
             .WithOpenApi()
             .RequireAuthorization();
 
-        groupBuilder.MapGet("/account", GetCallingUserAccounts)
+        groupBuilder.MapGet("/account", GetMyAccounts)
+            .WithName(nameof(GetMyAccounts))
             .WithDescription("Получить все счёта текущего пользователя");
 
-        groupBuilder.MapPost("/account", OpenNewAccount)
+        groupBuilder.MapPost("/account", OpenNewPaymentAccount)
+            .WithName(nameof(OpenNewPaymentAccount))
             .WithDescription("Открыть новый счёт для текущего пользователя");
 
-        groupBuilder.MapGet("/account/{accountNumber}/transaction", GetAccountTransactions)
+        groupBuilder.MapGet("/account/{accountNumber}/transaction", GetMyAccountTransactions)
+            .WithName(nameof(GetMyAccountTransactions))
             .WithDescription("Получить трансакции по счёту для текущего пользователя");
 
         groupBuilder.MapPost("/account/transaction", MakeTransaction)
@@ -45,7 +48,7 @@ public static class PaymentAccountEndpoints
     }
 
 
-    internal static async Task<Ok<PaymentAccountDto[]>> GetCallingUserAccounts(
+    internal static async Task<Ok<PaymentAccountDto[]>> GetMyAccounts(
         [FromServices] IExecutor<IGetCallingUserAccounts, Unit, PaymentAccountDto[]> getCallingUserAccounts,
         CancellationToken cancellationToken)
     {
@@ -55,7 +58,7 @@ public static class PaymentAccountEndpoints
     [ProducesResponseType(403)]
     [ProducesResponseType(404)]
     [ProducesResponseType(202)]
-    internal static async Task<IResult> OpenNewAccount(
+    internal static async Task<IResult> OpenNewPaymentAccount(
         [FromBody] OpenPaymentAccountRequest request,
         [FromServices] IExecutor<IOpenNewAccount, OpenPaymentAccountRequest, Result<CreateAccountResult>> openPaymentAccount,
         CancellationToken cancellationToken)
@@ -70,7 +73,7 @@ public static class PaymentAccountEndpoints
     [ProducesResponseType(404)]
     [ProducesResponseType(202)]
     [Produces<TransactionDto[]>]
-    internal static async Task<IResult> GetAccountTransactions(
+    internal static async Task<IResult> GetMyAccountTransactions(
         [FromRoute] string accountNumber,
         [FromQuery] int? take,
         [FromQuery] int? skip,
@@ -129,4 +132,4 @@ public static class PaymentAccountEndpoints
         var result = await close.Execute(accountNumber, cancellationToken);
         return result.MapToHttpResult(TypedResults.NoContent);
     }
-} 
+}

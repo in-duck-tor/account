@@ -159,9 +159,16 @@ public enum TransactionStatus
 
 /// <param name="BankCode">БИК</param>
 /// <param name="CurrencyCode">Код валюты, если известен</param>
-public record TransactionTarget(decimal Amount, AccountNumber AccountNumber, string? CurrencyCode, BankCode BankCode)
+public record TransactionTarget(decimal Amount, AccountNumber AccountNumber, string CurrencyCode, BankCode BankCode)
 {
+    public Money Money => new Money(Amount, Currency);
+    public Currency Currency { get; init; } = null!;
     public BankInfo BankInfo { get; init; } = null!;
 
     public bool IsExternal => BankCode.IsExternal;
+
+    public TransactionTarget(Money Money, AccountNumber AccountNumber, BankCode BankCode) : this(Money.Amount, AccountNumber, Money.CurrencyCode, BankCode)
+    {
+        Currency = Money.Currency;
+    }
 }

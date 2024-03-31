@@ -13,15 +13,23 @@ public class TransactionConfiguration : IEntityTypeConfiguration<Transaction>
         builder.OwnsOne(x => x.DepositOn, ownsBuilder =>
         {
             ownsBuilder.HasIndex(x => x.AccountNumber);
-            // ownsBuilder.HasOne<Currency>().WithMany().HasForeignKey(x => x.CurrencyCode);
             ownsBuilder.HasOne(x => x.BankInfo).WithMany().HasForeignKey(x => x.BankCode);
+            ownsBuilder.HasOne(x => x.Currency).WithMany().HasForeignKey(x => x.CurrencyCode);
+            ownsBuilder.Navigation(x => x.Currency).AutoInclude();
+            ownsBuilder
+                .Ignore(x => x.Money)
+                .Ignore(x => x.IsExternal);
         });
 
         builder.OwnsOne(x => x.WithdrawFrom, ownsBuilder =>
         {
             ownsBuilder.HasIndex(x => x.AccountNumber);
-            // ownsBuilder.HasOne<Currency>().WithMany().HasForeignKey(x => x.CurrencyCode);
             ownsBuilder.HasOne(x => x.BankInfo).WithMany().HasForeignKey(x => x.BankCode);
+            ownsBuilder.HasOne(x => x.Currency).WithMany().HasForeignKey(x => x.CurrencyCode);
+            ownsBuilder.Navigation(x => x.Currency).AutoInclude();
+            ownsBuilder
+                .Ignore(x => x.Money)
+                .Ignore(x => x.IsExternal);
         });
     }
 }

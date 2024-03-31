@@ -34,43 +34,31 @@ public class CreateTransaction(AccountsDbContext context, ISecurityContext secur
 
     private async ValueTask<Result<Transaction>> CreateNew(NewTransactionRequest request, TimeSpan ttl, CancellationToken ct)
     {
-        if (request is
-            {
-                WithdrawFrom.BankCode.IsExternal: true, 
-                DepositOn.BankCode.IsExternal: true
-            })
-            return new Errors.InvalidInput("Необходимо указать известный счёт отправитель или счёт получатель");
-
         var currantUser = securityContext.Currant;
 
-        var withdrawFromResult = await TryCreateCreate(request.Amount, request.WithdrawFrom,
-            account => Result.OkIf(account.CanUserWithdraw(currantUser), Forbid),
-            ct);
+        var withdrawAccountResult = await TryGetAccount(request.WithdrawFrom, account => Result.OkIf(account.CanUserWithdraw(currantUser), Forbid), ct);
+        var depositAccountResult = await TryGetAccount(request.DepositOn, account => Result.OkIf(account.CanUserDeposit(currantUser), Forbid), ct);
 
-        var depositOnResult = await TryCreateCreate(request.Amount, request.DepositOn,
-            account => Result.OkIf(account.CanUserDeposit(currantUser), Forbid),
-            ct);
-
-        return withdrawFromResult.Merge(depositOnResult)
-            .Bind(Result<Transaction> (targets) =>
+        return withdrawAccountResult.Merge(depositAccountResult)
+            .Bind(Result<Transaction> (accounts) =>
             {
-                var (withdrawFrom, depositOn) = targets;
-                if (withdrawFrom != null
-                    && depositOn != null
-                    && withdrawFrom.CurrencyCode != depositOn.CurrencyCode)
-                    // todo
-                    return new Errors.Conflict("Переводы с разными валютами не реализованы");
+                var (withdrawAccount, depositAccount) = accounts;
+                if (withdrawAccount == null && depositAccount == null) return new Errors.InvalidInput("Необходимо указать известный счёт отправитель или счёт получатель");
 
-                return new Transaction(depositOn, withdrawFrom, ttl, currantUser.Id);
+                var targetCurrency = withdrawAccount?.Currency ?? depositAccount!.Currency;
+                var transactionMoneyAmount = new Money(request.Amount, targetCurrency);
+
+                return new Transaction(
+                    depositOn: CreateTarget(transactionMoneyAmount, request.DepositOn, depositAccount),
+                    withdrawFrom: CreateTarget(transactionMoneyAmount, request.WithdrawFrom, depositAccount),
+                    ttl,
+                    currantUser.Id);
             });
     }
 
-    private async ValueTask<Result<TransactionTarget?>> TryCreateCreate(decimal amount, NewTransactionRequest.Target? requestTarget, Func<Domain.Account, Result> checkAccount, CancellationToken ct)
+    private async Task<Result<Domain.Account?>> TryGetAccount(NewTransactionRequest.Target? requestTarget, Func<Domain.Account, Result> checkAccount, CancellationToken ct)
     {
-        if (requestTarget is null) return Result.Ok<TransactionTarget?>(null);
-
-        if (requestTarget.BankCode != Domain.BankInfo.InDuckTorBankCode)
-            return new TransactionTarget(amount, requestTarget.AccountNumber, null, requestTarget.BankCode);
+        if (requestTarget is not { BankCode.IsExternal: false }) return Result.Ok<Domain.Account?>(null);
 
         var account = await context.Accounts.FindAsync([ requestTarget.AccountNumber ], ct);
         if (account is null) return new DomainErrors.Account.NotFound(requestTarget.AccountNumber);
@@ -78,7 +66,17 @@ public class CreateTransaction(AccountsDbContext context, ISecurityContext secur
         var result = checkAccount(account);
         if (result.IsFailed) return result;
 
-        return new TransactionTarget(amount, account.Number, account.CurrencyCode, account.BankCode);
+        return account;
+    }
+
+    private static TransactionTarget? CreateTarget(Money transactionMoneyAmount, NewTransactionRequest.Target? requestTarget, Domain.Account? account)
+    {
+        if (requestTarget is null) return null;
+
+        if (account is null)
+            return new TransactionTarget(transactionMoneyAmount, requestTarget.AccountNumber, requestTarget.BankCode);
+
+        return new TransactionTarget(transactionMoneyAmount.TransferTo(account.Currency), account.Number, account.BankCode);
     }
 
 
@@ -94,7 +92,7 @@ public class CreateTransaction(AccountsDbContext context, ISecurityContext secur
         var reserved = fundsReservations.Aggregate(new decimal(), (sum, reservation) => sum + reservation.Amount);
         var freeFunds = account!.Amount - reserved;
 
-        return freeFunds >= transaction.WithdrawFrom.Amount
+        return freeFunds >= transaction.WithdrawFrom.Money.Amount
             ? transaction
             : new DomainErrors.Account.NotEnoughFunds();
     }
@@ -105,7 +103,7 @@ public class CreateTransaction(AccountsDbContext context, ISecurityContext secur
 
         var fundsReservation = new FundsReservation
         {
-            Amount = transaction.WithdrawFrom.Amount,
+            Amount = transaction.WithdrawFrom.Money.Amount,
             AccountNumber = transaction.WithdrawFrom.AccountNumber
         };
         context.Add(fundsReservation);

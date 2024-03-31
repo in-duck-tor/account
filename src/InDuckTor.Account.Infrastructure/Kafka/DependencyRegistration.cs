@@ -11,15 +11,14 @@ namespace InDuckTor.Account.Infrastructure.Kafka;
 
 public static class DependencyRegistration
 {
-    /// <param name="services"></param>
-    /// <param name="configuration">Kafka configuration section</param>
     public static IServiceCollection AddAccountsKafka(this IServiceCollection services, IConfiguration configuration)
     {
-        var schemaRegistries = configuration.GetSection("SchemaRegistries");
+        var kafkaConfig = configuration.GetSection("Kafka");
+        var schemaRegistries = kafkaConfig.GetSection("SchemaRegistries");
         var defaultSchemaRegistry = schemaRegistries.GetSection("Default");
         
-        var consumers = configuration.GetSection("Consumers");
-        var producers = configuration.GetSection("Producers");
+        var consumers = kafkaConfig.GetSection("Consumers");
+        var producers = kafkaConfig.GetSection("Producers");
 
         
         services.AddInDuckTorKafka()

@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-using FluentResults;
-using InDuckTor.Account.Domain;
+﻿using FluentResults;
 using InDuckTor.Account.Features.Account.CreateAccount;
 using InDuckTor.Account.Features.Account.GetAccountTransactions;
 using InDuckTor.Account.Features.Account.SearchAccounts;
@@ -8,7 +6,6 @@ using InDuckTor.Account.Features.Models;
 using InDuckTor.Account.Features.Transactions;
 using InDuckTor.Account.WebApi.Mapping;
 using InDuckTor.Shared.Strategies;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InDuckTor.Account.WebApi.Endpoints;
@@ -27,6 +24,7 @@ public static class AccountEndpoints
             .WithDescription("Создать счёт");
 
         groupBuilder.MapPut("/bank/account/search", SearchAccounts)
+            .WithName(nameof(SearchAccounts))
             .WithDescription("Поиск по всем счётам");
 
         groupBuilder.MapGet("/bank/account/{accountNumber}/transaction", GetAccountTransactions)
@@ -38,9 +36,11 @@ public static class AccountEndpoints
             .WithDescription("Начать трансакцию между счётами");
 
         groupBuilder.MapPost("/bank/account/transaction/{transactionId}/commit", CommitTransaction)
+            .WithName(nameof(CommitTransaction))
             .WithDescription("Зафиксировать трансакцию между счётами");
 
         groupBuilder.MapPost("/bank/account/transaction/{transactionId}/cancel", CancelTransaction)
+            .WithName(nameof(CancelTransaction))
             .WithDescription("Отменить трансакцию между счётами");
 
         return builder;

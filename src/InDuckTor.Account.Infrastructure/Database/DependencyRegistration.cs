@@ -10,10 +10,10 @@ public record DatabaseSettings(string Scheme);
 
 public static class DependencyRegistration
 {
-    public static IServiceCollection AddAccountsDbContext(this IServiceCollection serviceCollection, IConfiguration configuration)
+    public static IServiceCollection AddAccountsDbContext(this IServiceCollection services, IConfiguration configuration)
     {
         var configurationSection = configuration.GetSection(nameof(DatabaseSettings));
-        serviceCollection.Configure<DatabaseSettings>(configurationSection);
+        services.Configure<DatabaseSettings>(configurationSection);
         var databaseSettings = configurationSection.Get<DatabaseSettings>();
         ArgumentNullException.ThrowIfNull(databaseSettings, nameof(configuration));
 
@@ -21,7 +21,7 @@ public static class DependencyRegistration
             .EnableDynamicJson()
             .Build();
 
-        return serviceCollection.AddDbContext<AccountsDbContext>(optionsBuilder =>
+        return services.AddDbContext<AccountsDbContext>(optionsBuilder =>
         {
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder)
                 .AddOrUpdateExtension(new AccountsDbContextOptionsExtension(databaseSettings.Scheme));

@@ -27,13 +27,13 @@ public class CommitTransaction(
         if (transaction is { WithdrawFrom.IsExternal: false })
         {
             var account = await context.Accounts.FindAsync([ transaction.WithdrawFrom.AccountNumber ], ct);
-            account!.Amount -= transaction.WithdrawFrom.Amount;
+            account!.Money -= transaction.WithdrawFrom.Money;
         }
 
         if (transaction is { DepositOn.IsExternal: false })
         {
             var account = await context.Accounts.FindAsync([ transaction.DepositOn.AccountNumber ], ct);
-            account!.Amount += transaction.DepositOn.Amount;
+            account!.Money += transaction.DepositOn.Money;
         }
 
         // проверки прав нет, посчитаем Id трансакции уже секретом

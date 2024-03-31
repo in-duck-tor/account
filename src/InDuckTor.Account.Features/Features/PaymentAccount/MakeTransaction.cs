@@ -1,13 +1,17 @@
 ﻿using FluentResults;
 using FluentResults.Extensions;
+using InDuckTor.Account.Contracts.Public;
 using InDuckTor.Account.Domain;
 using InDuckTor.Account.Features.Common;
 using InDuckTor.Account.Features.Models;
 using InDuckTor.Account.Features.Transactions;
 using InDuckTor.Account.Infrastructure.Database;
+using InDuckTor.Shared.Kafka;
 using InDuckTor.Shared.Models;
 using InDuckTor.Shared.Strategies;
 using AccountType = InDuckTor.Account.Domain.AccountType;
+using TransactionStatus = InDuckTor.Account.Domain.TransactionStatus;
+using TransactionType = InDuckTor.Account.Domain.TransactionType;
 
 namespace InDuckTor.Account.Features.PaymentAccount;
 
@@ -18,7 +22,8 @@ public interface IMakeTransaction : ICommand<NewTransactionRequest, Result<MakeT
 public class MakeTransaction(
     AccountsDbContext context,
     IExecutor<ICreateTransaction, CreateTransactionParams, Result<Transaction>> createTransaction,
-    IExecutor<ICommitTransaction, long, Result> commitTransaction)
+    IExecutor<ICommitTransaction, long, Result> commitTransaction,
+    ITopicProducer<string, TransactionEnvelop> producer)
     : IMakeTransaction
 {
     public Task<Result<MakeTransactionResult>> Execute(NewTransactionRequest input, CancellationToken ct)
@@ -27,6 +32,7 @@ public class MakeTransaction(
             .Bind(async transaction =>
             {
                 await context.SaveChangesAsync(ct);
+                await producer.ProduceTransactionStarted(transaction, ct);
                 await ScheduleTransactionRoutine(transaction, ct);
                 return Result.Ok(new MakeTransactionResult(transaction.Id, transaction.Type, transaction.Status));
             });
