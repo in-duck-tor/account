@@ -3,7 +3,10 @@ syntax = "proto3";
 option csharp_namespace = "InDuckTor.Account.Contracts.Public";
 
 package account;
+import "shared/enum_options.proto";
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/descriptor.proto" ;
+
 
 message AccountEnvelop {
   google.protobuf.Timestamp created_at = 1;
@@ -29,18 +32,18 @@ message AccountCreated {
 
 enum AccountType {
   // неизвестен \ ошибка 
-  ACCOUNT_TYPE_UNKNOWN = 0;
-  ACCOUNT_TYPE_PAYMENT = 1;
-  ACCOUNT_TYPE_LOAN = 2;
-  ACCOUNT_TYPE_CASH_REGISTER = 3;
+  ACCOUNT_TYPE_UNKNOWN = 0;     
+  ACCOUNT_TYPE_PAYMENT = 1        [(shared.enum_member).value = "payment"];
+  ACCOUNT_TYPE_LOAN = 2           [(shared.enum_member).value = "loan"];
+  ACCOUNT_TYPE_CASH_REGISTER = 3  [(shared.enum_member).value = "cash_register"];
 }
 
 enum AccountState {
   // неизвестен \ ошибка 
   ACCOUNT_STATE_UNKNOWN = 0;
-  ACCOUNT_STATE_ACTIVE = 1;
-  ACCOUNT_STATE_CLOSED = 2;
-  ACCOUNT_STATE_FROZEN = 3;
+  ACCOUNT_STATE_ACTIVE = 1  [(shared.enum_member).value = "active"];
+  ACCOUNT_STATE_CLOSED = 2  [(shared.enum_member).value = "closed"];
+  ACCOUNT_STATE_FROZEN = 3  [(shared.enum_member).value = "frozen"];
 }
 
 // Особые права пользователя на действие со счётом
@@ -51,11 +54,11 @@ message GrantedAccountUser {
 
 enum AccountAction {
   ACCOUNT_ACTION_UNKNOWN = 0;
-  ACCOUNT_ACTION_DEPOSIT = 1;
-  ACCOUNT_ACTION_WITHDRAW = 2;
-  ACCOUNT_ACTION_FREEZE = 3;
-  ACCOUNT_ACTION_CLOSE = 4;
-  ACCOUNT_ACTION_READ_OPERATIONS = 5;
+  ACCOUNT_ACTION_DEPOSIT = 1         [(shared.enum_member).value = "deposit"];
+  ACCOUNT_ACTION_WITHDRAW = 2        [(shared.enum_member).value = "withdraw"];
+  ACCOUNT_ACTION_FREEZE = 3          [(shared.enum_member).value = "freeze"];
+  ACCOUNT_ACTION_CLOSE = 4           [(shared.enum_member).value = "close"];
+  ACCOUNT_ACTION_READ_OPERATIONS = 5 [(shared.enum_member).value = "read"];
 }
 
 message AccountStateChanged {

@@ -18,11 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="InDuckTor.Shared" Version="2.1.4" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Interceptors\" />
+      <PackageReference Include="InDuckTor.Shared" Version="2.1.5" />
     </ItemGroup>
 
 </Project>

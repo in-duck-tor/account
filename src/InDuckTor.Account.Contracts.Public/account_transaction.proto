@@ -5,6 +5,8 @@ option csharp_namespace = "InDuckTor.Account.Contracts.Public";
 package account;
 import "google/protobuf/timestamp.proto";
 import "shared/decimal.proto";
+import "shared/enum_options.proto";
+
 
 message TransactionEnvelop {
   google.protobuf.Timestamp created_at = 1;
@@ -41,21 +43,21 @@ message TransactionStarted {
 
 enum TransactionType {
   TRANSACTION_TYPE_UNKNOWN = 0;
-  TRANSACTION_TYPE_WITHDRAW = 1;
-  TRANSACTION_TYPE_DEPOSIT = 2;
-  TRANSACTION_TYPE_TRANSFER = 3;
-  TRANSACTION_TYPE_TRANSFER_TO_EXTERNAL = 4;
-  TRANSACTION_TYPE_TRANSFER_FROM_EXTERNAL = 5;
+  TRANSACTION_TYPE_WITHDRAW = 1               [(shared.enum_member).value = "withdraw"];
+  TRANSACTION_TYPE_DEPOSIT = 2                [(shared.enum_member).value = "deposit"];
+  TRANSACTION_TYPE_TRANSFER = 3               [(shared.enum_member).value = "transfer"];
+  TRANSACTION_TYPE_TRANSFER_TO_EXTERNAL = 4   [(shared.enum_member).value = "transfer_to_external"];
+  TRANSACTION_TYPE_TRANSFER_FROM_EXTERNAL = 5 [(shared.enum_member).value = "transfer_from_external"];
 
 }
 
 enum TransactionStatus {
   // неизвестен \ ошибка 
   TRANSACTION_STATUS_UNKNOWN = 0;
-  TRANSACTION_STATUS_CREATING = 1;
-  TRANSACTION_STATUS_PENDING = 2;
-  TRANSACTION_STATUS_COMMITTED = 3;
-  TRANSACTION_STATUS_CANCELED = 4;
+  TRANSACTION_STATUS_CREATING = 1   [(shared.enum_member).value = "creating"];
+  TRANSACTION_STATUS_PENDING = 2    [(shared.enum_member).value = "pending"];
+  TRANSACTION_STATUS_COMMITTED = 3  [(shared.enum_member).value = "committed"];
+  TRANSACTION_STATUS_CANCELED = 4   [(shared.enum_member).value = "canceled"];
 }
 
 message TransactionFinished {

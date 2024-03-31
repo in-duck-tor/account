@@ -43,6 +43,7 @@ builder.Services.AddCors(options => { options.AddDefaultPolicy(policyBuilder => 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddAccountSwaggerGen();
 
+
 var app = builder.Build();
 
 if (!app.Environment.IsProduction())
@@ -50,8 +51,6 @@ if (!app.Environment.IsProduction())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-// app.UseHttpsRedirection();
 
 // todo использовать GW 
 app.UseCors();
@@ -64,27 +63,30 @@ app.AddPaymentAccountEndpoints()
     .AddBankingAccountEndpoints()
     .AddBankInfoEndpoints();
 
-Task.Run(async () =>
-{
-    var cash = app.Services.CreateScope().ServiceProvider.GetRequiredService<AccountsDbContext>().Accounts.First(account => account.Type == InDuckTor.Account.Domain.AccountType.CashRegister);
-    Thread.Sleep(TimeSpan.FromSeconds(20));
-    var producer = app.Services.GetRequiredService<ITopicProducer<Null, AccountEnvelop>>();
-    await producer.Produce(null!, new AccountEnvelop
-        {
-            CorrelationId = Guid.NewGuid().ToString(),
-            CreatedAt = cash.CreatedAt.ToTimestamp(),
-            AccountCreated = new AccountCreated
-            {
-                Type = (AccountType)cash.Type,
-                State = (AccountState)cash.State,
-                AccountNumber = cash.Number,
-                CurrencyCode = cash.CurrencyCode,
-                GrantedUsers = { cash.GrantedUsers.Select(user => new GrantedAccountUser { Id = user.Id, Actions = { user.Actions.Select(action => (AccountAction)action) } }) },
-                OwnerId = cash.OwnerId,
-                CreatedById = cash.CreatedBy
-            }
-        },
-        default);
-});
+// await Task.Run(async () =>
+// {
+//     while (true)
+//     {
+//         var cash = app.Services.CreateScope().ServiceProvider.GetRequiredService<AccountsDbContext>().Accounts.First(account => account.Type == InDuckTor.Account.Domain.AccountType.CashRegister);
+//         Thread.Sleep(TimeSpan.FromSeconds(20));
+//         var producer = app.Services.GetRequiredService<ITopicProducer<Null, AccountEnvelop>>();
+//         await producer.Produce(null!, new AccountEnvelop
+//             {
+//                 CorrelationId = Guid.NewGuid().ToString(),
+//                 CreatedAt = cash.CreatedAt.ToTimestamp(),
+//                 AccountCreated = new AccountCreated
+//                 {
+//                     Type = (AccountType)cash.Type,
+//                     State = (AccountState)cash.State,
+//                     AccountNumber = cash.Number,
+//                     CurrencyCode = cash.CurrencyCode,
+//                     GrantedUsers = { cash.GrantedUsers.Select(user => new GrantedAccountUser { Id = user.Id, Actions = { user.Actions.Select(action => (AccountAction)action) } }) },
+//                     OwnerId = cash.OwnerId,
+//                     CreatedById = cash.CreatedBy
+//                 }
+//             },
+//             default);
+//     }
+// });
 
 app.Run();

@@ -5,6 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Version>1.1.0</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -16,18 +17,18 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="InDuckTor.Shared.Protobuf" Version="1.0.8" GeneratePathProperty="true">
+        <PackageReference Include="InDuckTor.Shared.Protobuf" Version="1.1.0" GeneratePathProperty="true">
             <IncludeAssets>all</IncludeAssets>
         </PackageReference>
     </ItemGroup>
-
-    <ItemGroup>
-        <Compile Include="$(PkgInDuckTor_Shared_Protobuf)\**\*.cs" />
+    <ItemGroup Condition="$(PkgInDuckTor_Shared_Protobuf.Length) > 0">
+        <Link Include="$(PkgInDuckTor_Shared_Protobuf)\**\*.proto"/>
     </ItemGroup>
 
     <ItemGroup>
-        <Protobuf Include="*.proto" ProtoRoot="." AdditionalImportDirs="$(PkgInDuckTor_Shared_Protobuf)" Exclude="$(PkgInDuckTor_Shared_Protobuf)"/>
-        <Protobuf Include="$(PkgInDuckTor_Shared_Protobuf)\shared\**\*.proto" ProtoRoot="$(PkgInDuckTor_Shared_Protobuf)"/>
+        <Protobuf Include="*.proto" ProtoRoot="." AdditionalImportDirs="$(PkgInDuckTor_Shared_Protobuf)"/>
+        <!--        <Protobuf Include="$(PkgInDuckTor_Shared_Protobuf)\shared\**\*.proto" ProtoRoot="$(PkgInDuckTor_Shared_Protobuf)"/>-->
     </ItemGroup>
+
 
 </Project>
