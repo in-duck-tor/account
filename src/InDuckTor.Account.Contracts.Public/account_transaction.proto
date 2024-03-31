@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+option csharp_namespace = "InDuckTor.Account.Contracts.Public";
+
+package account;
+import "google/protobuf/timestamp.proto";
+import "shared/decimal.proto";
+
+message TransactionEnvelop {
+  google.protobuf.Timestamp created_at = 1;
+  string correlation_id = 2;
+  oneof payload {
+    TransactionStarted transaction_started = 3;
+    TransactionFinished transaction_finished = 4;
+  }
+}
+
+message TransactionStarted {
+  int64 id = 1;
+  TransactionType type = 2;
+  TransactionStatus status = 3;
+  int32 initiated_by_id = 4;
+
+  message Target {
+    int64 bank_code = 1;
+    // Трёхбуквенный алфавитный код ISO 4217
+    string currency_code = 2;
+    string account_number = 3;
+    // Объём денежных средств
+    // todo возможно стоит попробовать другой формат  
+    // string amount = 4;
+    // int64 amount = ;   OACurrency
+    // double amount = ;  
+    // bytes amount = ;   бинарная сериализация decimal
+    shared.DecimalValue amount = 4;
+  }
+
+  optional Target DepositOn = 5;
+  optional Target WithdrawFrom = 6;
+}
+
+enum TransactionType {
+  TRANSACTION_TYPE_UNKNOWN = 0;
+  TRANSACTION_TYPE_WITHDRAW = 1;
+  TRANSACTION_TYPE_DEPOSIT = 2;
+  TRANSACTION_TYPE_TRANSFER = 3;
+  TRANSACTION_TYPE_TRANSFER_TO_EXTERNAL = 4;
+  TRANSACTION_TYPE_TRANSFER_FROM_EXTERNAL = 5;
+
+}
+
+enum TransactionStatus {
+  // неизвестен \ ошибка 
+  TRANSACTION_STATUS_UNKNOWN = 0;
+  TRANSACTION_STATUS_CREATING = 1;
+  TRANSACTION_STATUS_PENDING = 2;
+  TRANSACTION_STATUS_COMMITTED = 3;
+  TRANSACTION_STATUS_CANCELED = 4;
+}
+
+message TransactionFinished {
+  int64 id = 1;
+  TransactionType type = 2;
+  // Завершенный статус трансакции
+  TransactionStatus status = 3;
+}

@@ -1,11 +1,17 @@
-﻿using FluentResults;
+﻿using Confluent.Kafka;
+using FluentResults;
+using InDuckTor.Account.Contracts.Public;
 using InDuckTor.Account.Domain;
 using InDuckTor.Account.Features.Common;
+using InDuckTor.Account.Features.Mapping;
 using InDuckTor.Account.Features.Models;
 using InDuckTor.Account.Infrastructure.Database;
+using InDuckTor.Shared.Kafka;
 using InDuckTor.Shared.Security.Context;
 using InDuckTor.Shared.Strategies;
+using AccountAction = InDuckTor.Account.Domain.AccountAction;
 using AccountType = InDuckTor.Account.Domain.AccountType;
+using GrantedAccountUser = InDuckTor.Account.Domain.GrantedAccountUser;
 
 namespace InDuckTor.Account.Features.PaymentAccount;
 
@@ -18,7 +24,9 @@ public interface IOpenNewAccount : ICommand<OpenPaymentAccountRequest, Result<Cr
 public class OpenNewAccount(
     AccountsDbContext context,
     ISecurityContext securityContext,
-    ICreateNewAccountNumber createNewAccountNumber) : IOpenNewAccount
+    ICreateNewAccountNumber createNewAccountNumber,
+    // todo : use domain events 
+    ITopicProducer<Null, AccountEnvelop> producer) : IOpenNewAccount
 {
     public async Task<Result<CreateAccountResult>> Execute(OpenPaymentAccountRequest input, CancellationToken ct)
     {
@@ -43,6 +51,8 @@ public class OpenNewAccount(
 
         context.Add(account);
         await context.SaveChangesAsync(ct);
+
+        await producer.Produce(null!, account.ToCreatedEventEnvelop(), ct);
 
         return new CreateAccountResult(account.Number);
     }

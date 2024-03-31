@@ -1,6 +1,9 @@
 ﻿using FluentResults;
+using InDuckTor.Account.Contracts.Public;
 using InDuckTor.Account.Domain;
+using InDuckTor.Account.Features.Common;
 using InDuckTor.Account.Infrastructure.Database;
+using InDuckTor.Shared.Kafka;
 using InDuckTor.Shared.Strategies;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,7 +14,9 @@ namespace InDuckTor.Account.Features.Transactions;
 /// </summary>
 public interface ICommitTransaction : ICommand<long, Result>;
 
-public class CommitTransaction(AccountsDbContext context) : ICommitTransaction
+public class CommitTransaction(
+    AccountsDbContext context,
+    ITopicProducer<string, TransactionEnvelop> producer) : ICommitTransaction
 {
     public async Task<Result> Execute(long transactionId, CancellationToken ct)
     {
@@ -38,6 +43,9 @@ public class CommitTransaction(AccountsDbContext context) : ICommitTransaction
         var committedReservations = result.Value;
         context.FundsReservations.RemoveRange(committedReservations);
         await context.SaveChangesAsync(ct);
+        
+        await producer.ProduceTransactionFinished(transaction, ct);
+        
         return Result.Ok();
     }
 }

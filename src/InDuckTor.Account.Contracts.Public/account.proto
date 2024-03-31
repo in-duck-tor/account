@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+option csharp_namespace = "InDuckTor.Account.Contracts.Public";
+
+package account;
+import "google/protobuf/timestamp.proto";
+
+message AccountEnvelop {
+  google.protobuf.Timestamp created_at = 1;
+  string correlation_id = 2;
+  oneof payload {
+    AccountCreated account_created = 3;
+    AccountStateChanged account_state_changed = 4;
+  }
+}
+
+message AccountCreated {
+  string account_number = 1;
+  AccountType type = 2;
+  AccountState state = 3;
+  // Трёхбуквенный алфавитный код ISO 4217
+  string currency_code = 4;
+  // Пользователь-владелец для которого был создан счёт
+  int32 owner_id = 5;
+  // Пользователь-создатель может быть как клиент так и система\сервисный аккаунт
+  int32 created_by_id = 6;
+  repeated GrantedAccountUser granted_users = 7;
+}
+
+enum AccountType {
+  // неизвестен \ ошибка 
+  ACCOUNT_TYPE_UNKNOWN = 0;
+  ACCOUNT_TYPE_PAYMENT = 1;
+  ACCOUNT_TYPE_LOAN = 2;
+  ACCOUNT_TYPE_CASH_REGISTER = 3;
+}
+
+enum AccountState {
+  // неизвестен \ ошибка 
+  ACCOUNT_STATE_UNKNOWN = 0;
+  ACCOUNT_STATE_ACTIVE = 1;
+  ACCOUNT_STATE_CLOSED = 2;
+  ACCOUNT_STATE_FROZEN = 3;
+}
+
+// Особые права пользователя на действие со счётом
+message GrantedAccountUser {
+  int32 id = 1;
+  repeated AccountAction actions = 2;
+}
+
+enum AccountAction {
+  ACCOUNT_ACTION_UNKNOWN = 0;
+  ACCOUNT_ACTION_DEPOSIT = 1;
+  ACCOUNT_ACTION_WITHDRAW = 2;
+  ACCOUNT_ACTION_FREEZE = 3;
+  ACCOUNT_ACTION_CLOSE = 4;
+  ACCOUNT_ACTION_READ_OPERATIONS = 5;
+}
+
+message AccountStateChanged {
+  string account_number = 1;
+  AccountType type = 2;
+  // Актуальное состояние счёта
+  AccountState state = 3;
+  // Пользователь которым было совершено изменение
+  int32 changed_by_id = 4;
+}

@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Google.Protobuf" Version="3.26.1"/>
+        <PackageReference Include="Grpc.Tools" Version="2.62.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="InDuckTor.Shared.Protobuf" Version="1.0.8" GeneratePathProperty="true">
+            <IncludeAssets>all</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Include="$(PkgInDuckTor_Shared_Protobuf)\**\*.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Protobuf Include="*.proto" ProtoRoot="." AdditionalImportDirs="$(PkgInDuckTor_Shared_Protobuf)" Exclude="$(PkgInDuckTor_Shared_Protobuf)"/>
+        <Protobuf Include="$(PkgInDuckTor_Shared_Protobuf)\shared\**\*.proto" ProtoRoot="$(PkgInDuckTor_Shared_Protobuf)"/>
+    </ItemGroup>
+
+</Project>

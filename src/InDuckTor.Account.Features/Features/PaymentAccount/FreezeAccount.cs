@@ -1,6 +1,10 @@
-﻿using FluentResults;
+﻿using Confluent.Kafka;
+using FluentResults;
+using InDuckTor.Account.Contracts.Public;
 using InDuckTor.Account.Domain;
+using InDuckTor.Account.Features.Mapping;
 using InDuckTor.Account.Infrastructure.Database;
+using InDuckTor.Shared.Kafka;
 using InDuckTor.Shared.Models;
 using InDuckTor.Shared.Security.Context;
 using InDuckTor.Shared.Strategies;
@@ -14,7 +18,7 @@ public readonly record struct FreezeAccountRequest(AccountNumber AccountNumber, 
 /// </summary>
 public interface IFreezeAccount : ICommand<FreezeAccountRequest, Result>;
 
-public class FreezeAccount(AccountsDbContext context, ISecurityContext securityContext) : IFreezeAccount
+public class FreezeAccount(AccountsDbContext context, ISecurityContext securityContext, ITopicProducer<Null, AccountEnvelop> producer) : IFreezeAccount
 {
     public async Task<Result> Execute(FreezeAccountRequest request, CancellationToken ct)
     {
@@ -27,6 +31,7 @@ public class FreezeAccount(AccountsDbContext context, ISecurityContext securityC
         if (result.IsSuccess)
         {
             await context.SaveChangesAsync(ct);
+            await producer.Produce(null!, account.ToStateChangedEventEnvelop(securityContext.Currant.Id), ct);
         }
 
         return result;

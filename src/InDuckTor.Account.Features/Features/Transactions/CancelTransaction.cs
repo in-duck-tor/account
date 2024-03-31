@@ -1,6 +1,9 @@
 ﻿using FluentResults;
+using InDuckTor.Account.Contracts.Public;
 using InDuckTor.Account.Domain;
+using InDuckTor.Account.Features.Common;
 using InDuckTor.Account.Infrastructure.Database;
+using InDuckTor.Shared.Kafka;
 using InDuckTor.Shared.Strategies;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,7 +11,9 @@ namespace InDuckTor.Account.Features.Transactions;
 
 public interface ICancelTransaction : ICommand<long, Result>;
 
-public class CancelTransaction(AccountsDbContext context) : ICancelTransaction
+public class CancelTransaction(
+    AccountsDbContext context,
+    ITopicProducer<string, TransactionEnvelop> producer) : ICancelTransaction
 {
     public async Task<Result> Execute(long transactionId, CancellationToken ct)
     {
@@ -22,6 +27,9 @@ public class CancelTransaction(AccountsDbContext context) : ICancelTransaction
         {
             context.FundsReservations.RemoveRange(cancelledReservations);
             await context.SaveChangesAsync(ct);
+            
+            await producer.ProduceTransactionFinished(transaction, ct);
+            
             return Result.Ok();
         }
     }

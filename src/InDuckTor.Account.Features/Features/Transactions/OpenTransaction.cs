@@ -1,9 +1,14 @@
 ﻿using FluentResults;
+using InDuckTor.Account.Contracts.Public;
 using InDuckTor.Account.Domain;
 using InDuckTor.Account.Features.Common;
+using InDuckTor.Account.Features.Mapping;
 using InDuckTor.Account.Features.Models;
 using InDuckTor.Account.Infrastructure.Database;
+using InDuckTor.Shared.Kafka;
 using InDuckTor.Shared.Strategies;
+using TransactionStatus = InDuckTor.Account.Domain.TransactionStatus;
+using TransactionType = InDuckTor.Account.Domain.TransactionType;
 
 namespace InDuckTor.Account.Features.Transactions;
 
@@ -29,7 +34,8 @@ public interface IOpenTransaction : ICommand<OpenTransactionRequest, Result<Open
 public class OpenTransaction(
     AccountsDbContext context,
     IExecutor<ICreateTransaction, CreateTransactionParams, Result<Transaction>> createTransaction,
-    IExecutor<ICommitTransaction, long, Result> commitTransaction)
+    IExecutor<ICommitTransaction, long, Result> commitTransaction,
+    ITopicProducer<string, TransactionEnvelop> producer)
     : IOpenTransaction
 {
     public async Task<Result<OpenTransactionResult>> Execute(OpenTransactionRequest input, CancellationToken ct)
@@ -45,6 +51,8 @@ public class OpenTransaction(
         {
             await ScheduleTransactionRoutine(transaction, ct);
         }
+        
+        await producer.ProduceTransactionStarted(transaction, ct);
 
         return new OpenTransactionResult(transaction.Id, transaction.Type, transaction.Status, transaction.AutoCloseAt);
     }

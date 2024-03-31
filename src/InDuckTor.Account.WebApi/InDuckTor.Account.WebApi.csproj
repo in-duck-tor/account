@@ -18,6 +18,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Serilog.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="5.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
@@ -26,13 +28,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\InDuckTor.Account.Contracts.Public\InDuckTor.Account.Contracts.Public.csproj" />
     <ProjectReference Include="..\InDuckTor.Account.Domain\InDuckTor.Account.Domain.csproj" />
     <ProjectReference Include="..\InDuckTor.Account.Features\InDuckTor.Account.Features.csproj" />
     <ProjectReference Include="..\InDuckTor.Account.Infrastructure\InDuckTor.Account.Infrastructure.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\InDuckTor.Account.Domain\InDuckTor.Account.Domain.csproj" />
   </ItemGroup>
 
 </Project>
