@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>dotnet-InDuckTor.Account.Worker-B77CFA50-D42B-43A6-9B94-EE2790C14E35</UserSecretsId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Mapster.DependencyInjection" Version="1.0.1" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\InDuckTor.Account.Cbr.Integration\InDuckTor.Account.Cbr.Integration.csproj" />
+      <ProjectReference Include="..\InDuckTor.Account.Contracts.Public\InDuckTor.Account.Contracts.Public.csproj" />
+      <ProjectReference Include="..\InDuckTor.Account.Features\InDuckTor.Account.Features.csproj" />
+      <ProjectReference Include="..\InDuckTor.Account.Infrastructure\InDuckTor.Account.Infrastructure.csproj" />
+      <ProjectReference Include="..\InDuckTor.Account.Telemetry\InDuckTor.Account.Telemetry.csproj" />
+    </ItemGroup>
+</Project>

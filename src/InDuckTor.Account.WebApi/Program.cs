@@ -1,10 +1,10 @@
 using System.Reflection;
 using InDuckTor.Account.Cbr.Integration;
 using InDuckTor.Account.Features.Common;
+using InDuckTor.Account.Features.Mapping;
 using InDuckTor.Account.Infrastructure.Database;
 using InDuckTor.Account.Infrastructure.Hangfire;
-using InDuckTor.Account.Infrastructure.Kafka;
-using InDuckTor.Account.WebApi.BackgroundJobs;
+using InDuckTor.Account.Telemetry;
 using InDuckTor.Account.WebApi.Configuration;
 using InDuckTor.Account.WebApi.Endpoints;
 using InDuckTor.Shared.Security.Http;
@@ -30,11 +30,12 @@ builder.Services.AddInDuckTorAuthentication(configuration.GetSection(nameof(JwtS
 builder.Services.AddAuthorization();
 builder.Services.AddInDuckTorSecurity();
 
-builder.Services.AddAccountsKafka(configuration);
+builder.Services.AddAccountsApiKafka(configuration);
 builder.Services.AddAccountsDbContext(configuration);
 builder.Services.AddAccountsHangfire(configuration);
 
-builder.Services.AddHostedService<MaintanceBackGroundService>();
+MapsterConfiguration.ConfigureMapster(Assembly.GetAssembly(typeof(AccountCommandsMapping))!);
+builder.AddAccountTelemetry();
 
 builder.Services.AddProblemDetails()
     .ConfigureJsonConverters();
@@ -63,6 +64,7 @@ app.UseInDuckTorSecurity();
 
 app.AddPaymentAccountEndpoints()
     .AddBankingAccountEndpoints()
-    .AddBankInfoEndpoints();
+    .AddBankInfoEndpoints()
+    .AddToolEndpoints();
 
 app.Run();

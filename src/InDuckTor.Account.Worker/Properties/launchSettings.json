@@ -1,0 +1,23 @@
+﻿{
+  "$schema": "http://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "InDuckTor.Account.Worker": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development",
+        "OTEL_RESOURCE_ATTRIBUTES": "service.name=account-worker",
+        "OTEL_EXPORTER_OTLP_ENDPOINT": "http://otelcol:4318"
+      }
+    },
+    "Local_InDuckTor.Account.Worker": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Local",
+        "OTEL_RESOURCE_ATTRIBUTES": "service.name=account-worker",
+        "OTEL_EXPORTER_OTLP_ENDPOINT": "http://89.19.214.8:4318"
+      }
+    }
+  }
+}

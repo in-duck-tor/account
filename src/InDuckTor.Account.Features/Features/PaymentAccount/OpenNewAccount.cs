@@ -26,7 +26,7 @@ public class OpenNewAccount(
     ISecurityContext securityContext,
     ICreateNewAccountNumber createNewAccountNumber,
     // todo : use domain events 
-    ITopicProducer<Null, AccountEnvelop> producer) : IOpenNewAccount
+    ITopicProducer<string, AccountEnvelop> producer) : IOpenNewAccount
 {
     public async Task<Result<CreateAccountResult>> Execute(OpenPaymentAccountRequest input, CancellationToken ct)
     {

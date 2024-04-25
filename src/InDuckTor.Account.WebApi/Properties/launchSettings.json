@@ -16,7 +16,9 @@
       "launchUrl": "http://localhost:5229/swagger",
       "applicationUrl": "http://localhost:5229",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Local"
+        "ASPNETCORE_ENVIRONMENT": "Local",
+        "OTEL_RESOURCE_ATTRIBUTES": "service.name=account-api",
+        "OTEL_EXPORTER_OTLP_ENDPOINT": "http://89.19.214.8:4318"
       }
     },
     "https": {
@@ -26,7 +28,8 @@
       "launchUrl": "https://localhost:7280/swagger",
       "applicationUrl": "https://localhost:7280;http://localhost:5229",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Local"
+        "ASPNETCORE_ENVIRONMENT": "Local",
+        "OTEL_RESOURCE_ATTRIBUTES": "service.name=account-api"
       }
     },
     "IIS Express": {
@@ -34,7 +37,8 @@
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "OTEL_RESOURCE_ATTRIBUTES": "service.name=account-api"
       }
     }
   }

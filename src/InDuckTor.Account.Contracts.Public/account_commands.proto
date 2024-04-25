@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+option csharp_namespace = "InDuckTor.Account.Contracts.Public";
+
+package account;
+import "google/protobuf/timestamp.proto";
+import "shared/user_principal.proto";
+import "shared/decimal.proto";
+import "account.proto";
+import "account_transaction.proto";
+
+
+message AccountCommandEnvelop {
+  shared.UserPrincipal calling_user = 1;
+
+  oneof payload {
+    CreateAccount create_account = 100;
+    CloseAccount close_account = 101;
+    FreezeAccount freeze_account = 102;
+
+    OpenTransaction open_transaction = 200;
+    CommitTransaction commit_transaction = 201;
+    CancelTransaction cancel_transaction = 202;
+  }
+}
+
+message CreateAccount {
+  int32 for_user_id = 1;
+  AccountType account_type = 2;
+  // Трёхбуквенный алфавитный код ISO 4217
+  string currency_code = 3;
+  optional google.protobuf.Timestamp planed_expiration = 4;
+  optional string custom_comment = 5;
+}
+
+message CloseAccount {
+  string account_number = 1;
+}
+
+message FreezeAccount {
+  string account_number = 1;
+  bool unfreeze = 2;
+}
+
+
+message OpenTransaction {
+  NewTransaction new_transaction = 1;
+  bool execute_immediate = 2;
+  double requested_transaction_ttl = 3;
+}
+
+message NewTransaction {
+  shared.DecimalValue amount = 1;
+  NewTransaction.Target deposit_on = 2;
+  NewTransaction.Target withdraw_from = 3;
+
+  message Target {
+    string account_number = 1;
+    int64 bank_code = 2;
+  }
+}
+
+message CommitTransaction {
+  int64 transaction_id = 1;
+}
+
+message CancelTransaction {
+  int64 transaction_id = 1;
+}

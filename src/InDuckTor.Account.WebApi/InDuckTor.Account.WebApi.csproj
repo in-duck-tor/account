@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="InDuckTor.Shared" Version="2.1.5" />
+    <PackageReference Include="InDuckTor.Shared" Version="2.2.5" />
     <PackageReference Include="InDuckTor.Shared.Configuration.Swagger" Version="2.0.0" />
     <PackageReference Include="InDuckTor.Shared.Security.Http" Version="2.0.0" />
     <PackageReference Include="InDuckTor.Shared.Security.Jwt" Version="2.0.2" />
@@ -35,6 +35,22 @@
     <ProjectReference Include="..\InDuckTor.Account.Domain\InDuckTor.Account.Domain.csproj" />
     <ProjectReference Include="..\InDuckTor.Account.Features\InDuckTor.Account.Features.csproj" />
     <ProjectReference Include="..\InDuckTor.Account.Infrastructure\InDuckTor.Account.Infrastructure.csproj" />
+    <ProjectReference Include="..\InDuckTor.Account.Telemetry\InDuckTor.Account.Telemetry.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Endpoints\AccountEndpoints.V1.cs">
+      <DependentUpon>AccountEndpoints.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Endpoints\AccountEndpoints.V2.cs">
+      <DependentUpon>AccountEndpoints.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Endpoints\PaymentAccountEndpoints.V1.cs">
+      <DependentUpon>PaymentAccountEndpoints.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Endpoints\PaymentAccountEndpoints.V2.cs">
+      <DependentUpon>PaymentAccountEndpoints.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
 
 </Project>

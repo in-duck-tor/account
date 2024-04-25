@@ -10,7 +10,7 @@ import "shared/enum_options.proto";
 
 message TransactionEnvelop {
   google.protobuf.Timestamp created_at = 1;
-  string correlation_id = 2;
+  reserved 2;
   oneof payload {
     TransactionStarted transaction_started = 3;
     TransactionFinished transaction_finished = 4;

@@ -18,7 +18,7 @@ public readonly record struct FreezeAccountRequest(AccountNumber AccountNumber, 
 /// </summary>
 public interface IFreezeAccount : ICommand<FreezeAccountRequest, Result>;
 
-public class FreezeAccount(AccountsDbContext context, ISecurityContext securityContext, ITopicProducer<Null, AccountEnvelop> producer) : IFreezeAccount
+public class FreezeAccount(AccountsDbContext context, ISecurityContext securityContext, ITopicProducer<string, AccountEnvelop> producer) : IFreezeAccount
 {
     public async Task<Result> Execute(FreezeAccountRequest request, CancellationToken ct)
     {

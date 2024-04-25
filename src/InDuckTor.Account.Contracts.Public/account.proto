@@ -7,10 +7,9 @@ import "shared/enum_options.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/descriptor.proto" ;
 
-
 message AccountEnvelop {
   google.protobuf.Timestamp created_at = 1;
-  string correlation_id = 2;
+  reserved 2;
   oneof payload {
     AccountCreated account_created = 3;
     AccountStateChanged account_state_changed = 4;

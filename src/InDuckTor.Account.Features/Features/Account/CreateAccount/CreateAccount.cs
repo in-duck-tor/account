@@ -6,9 +6,9 @@ using InDuckTor.Account.Features.Common;
 using InDuckTor.Account.Features.Mapping;
 using InDuckTor.Account.Features.Models;
 using InDuckTor.Account.Infrastructure.Database;
+using InDuckTor.Shared.Interceptors;
 using InDuckTor.Shared.Kafka;
 using InDuckTor.Shared.Security.Context;
-using InDuckTor.Shared.Strategies.Interceptors;
 using AccountAction = InDuckTor.Account.Domain.AccountAction;
 using GrantedAccountUser = InDuckTor.Account.Domain.GrantedAccountUser;
 
@@ -21,11 +21,11 @@ public class CreateAccount : ICreateAccount
     private readonly AccountsDbContext _context;
     private readonly ICreateNewAccountNumber _createNewAccountNumber;
     private readonly ISecurityContext _securityContext;
-    private readonly ITopicProducer<Null, AccountEnvelop> _producer;
+    private readonly ITopicProducer<string, AccountEnvelop> _producer;
 
     public CreateAccount(AccountsDbContext context, ICreateNewAccountNumber createNewAccountNumber, ISecurityContext securityContext,
         // todo : use domain events 
-        ITopicProducer<Null, AccountEnvelop> producer)
+        ITopicProducer<string, AccountEnvelop> producer)
     {
         _context = context;
         _createNewAccountNumber = createNewAccountNumber;

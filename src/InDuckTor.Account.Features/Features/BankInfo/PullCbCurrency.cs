@@ -7,9 +7,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InDuckTor.Account.Features.BankInfo;
 
-public interface IPullCbCurrencyRoutine : ICommand<Unit, Unit>;
+public interface IPullCbrCurrencyRoutine : ICommand<Unit, Unit>;
 
-public class PullCbCurrencyRoutine(ICbrClient cbrClient, AccountsDbContext context) : IPullCbCurrencyRoutine
+public class PullCbrCurrencyRoutine(ICbrClient cbrClient, AccountsDbContext context) : IPullCbrCurrencyRoutine
 {
     // todo : move to config
     private const string CbrTimeZoneId = "Russian Standard Time";
@@ -37,7 +37,7 @@ public class PullCbCurrencyRoutine(ICbrClient cbrClient, AccountsDbContext conte
         foreach (var currency in currencies)
         {
             if (!dbCurrencies.TryGetValue(currency.NumericCode, out var dbCurrency)) continue;
-            dbCurrency.RateToRuble = currency.NumericCode;
+            dbCurrency.RateToRuble = currency.RateToRuble;
         }
 
         context.Currencies.AddRange(currencies.Where(c => !dbCurrencies.ContainsKey(c.NumericCode)));

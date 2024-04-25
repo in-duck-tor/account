@@ -1,10 +1,10 @@
-﻿namespace InDuckTor.Account.WebApi.BackgroundJobs;
+﻿namespace InDuckTor.Account.Worker.BackgroundJobs;
 
-public class MaintanceBackGroundService : BackgroundService
+public class MaintenanceBackGroundService : BackgroundService
 {
     private readonly IConfiguration _configuration;
 
-    public MaintanceBackGroundService(IConfiguration configuration)
+    public MaintenanceBackGroundService(IConfiguration configuration)
     {
         _configuration = configuration;
     }

@@ -2,7 +2,7 @@
 using InDuckTor.Account.Domain;
 using InDuckTor.Account.Features.Models;
 using InDuckTor.Account.Infrastructure.Database;
-using InDuckTor.Shared.Strategies.Interceptors;
+using InDuckTor.Shared.Interceptors;
 using Microsoft.EntityFrameworkCore;
 
 namespace InDuckTor.Account.Features.Account.SearchAccounts;

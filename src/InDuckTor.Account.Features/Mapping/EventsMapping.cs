@@ -15,7 +15,6 @@ public static class EventsMapping
     public static AccountEnvelop ToCreatedEventEnvelop(this Domain.Account account)
         => new()
         {
-            CorrelationId = Guid.NewGuid().ToString(),  // todo trace id
             CreatedAt = account.CreatedAt.ToTimestamp(),
             AccountCreated = new AccountCreated
             {
@@ -32,7 +31,6 @@ public static class EventsMapping
     public static AccountEnvelop ToStateChangedEventEnvelop(this Domain.Account account, int changedBy)
         => new()
         {
-            CorrelationId = Guid.NewGuid().ToString(),  // todo trace id
             CreatedAt = account.CreatedAt.ToTimestamp(),
             AccountStateChanged = new()
             {
@@ -46,7 +44,6 @@ public static class EventsMapping
     public static TransactionEnvelop ToStartedEventEnvelop(this Transaction transaction)
         => new()
         {
-            CorrelationId = Guid.NewGuid().ToString(), // todo trace id
             CreatedAt = transaction.StartedAt.ToTimestamp(),
             TransactionStarted = new()
             {
@@ -70,7 +67,6 @@ public static class EventsMapping
     public static TransactionEnvelop ToFinishedEventEnvelop(this Transaction transaction)
         => new()
         {
-            CorrelationId = Guid.NewGuid().ToString(), // todo trace id
             CreatedAt = transaction.StartedAt.ToTimestamp(),
             TransactionFinished = new()
             {

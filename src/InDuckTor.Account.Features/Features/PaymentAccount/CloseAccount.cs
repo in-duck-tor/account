@@ -13,7 +13,7 @@ namespace InDuckTor.Account.Features.PaymentAccount;
 
 public interface ICloseAccount : ICommand<AccountNumber, Result>;
 
-public class CloseAccount(AccountsDbContext context, ISecurityContext securityContext, ITopicProducer<Null, AccountEnvelop> producer) : ICloseAccount
+public class CloseAccount(AccountsDbContext context, ISecurityContext securityContext, ITopicProducer<string, AccountEnvelop> producer) : ICloseAccount
 {
     public async Task<Result> Execute(AccountNumber accountNumber, CancellationToken ct)
     {

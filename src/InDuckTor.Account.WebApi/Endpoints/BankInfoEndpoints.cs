@@ -1,6 +1,5 @@
 using InDuckTor.Account.Features.BankInfo;
-using InDuckTor.Account.Features.Common;
-using InDuckTor.Account.Features.Models;
+using InDuckTor.Account.Telemetry;
 using InDuckTor.Shared.Models;
 using InDuckTor.Shared.Strategies;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -31,6 +30,7 @@ public static class BankInfoEndpoints
         [FromServices] IExecutor<IGetBanksInfo, Unit, BankInfo[]> getBanksInfo,
         CancellationToken cancellationToken)
     {
+        using var _ = TelemetryGlobals.ActivitySource.StartActivity();
         return TypedResults.Ok(await getBanksInfo.Execute(new Unit(), cancellationToken));
     }
 
