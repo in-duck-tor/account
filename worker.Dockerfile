@@ -12,8 +12,8 @@ RUN dotnet nuget update source github.in-duck-tor -u $GH_USERNAME -p $GH_TOKEN -
 RUN dotnet restore --runtime linux-x64 
 
 COPY . .
-RUN dotnet build -c Release --no-restore ./src/InDuckTor.Account.WebApi/InDuckTor.Account.Worker.csproj
-RUN dotnet publish -c Release -o ./publish/ --no-restore ./src/InDuckTor.Account.WebApi/InDuckTor.Account.Worker.csproj
+RUN dotnet build -c Release --no-restore ./src/InDuckTor.Account.Worker/InDuckTor.Account.Worker.csproj
+RUN dotnet publish -c Release -o ./publish/ --no-restore ./src/InDuckTor.Account.Worker/InDuckTor.Account.Worker.csproj
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 as runtime
 VOLUME /app/certs
