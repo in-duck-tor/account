@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace InDuckTor.Account.WebApi.Endpoints;
 
-public static partial  class PaymentAccountEndpoints
+public static partial class PaymentAccountEndpoints
 {
     internal static void AddV1(IEndpointRouteBuilder builder)
     {
@@ -18,32 +18,57 @@ public static partial  class PaymentAccountEndpoints
             .WithTags("PaymentAccounts V1")
             .WithOpenApi()
             .RequireAuthorization();
-// todo v2
+
         groupBuilder.MapGet("/account", GetMyAccounts)
             .WithName(nameof(GetMyAccounts))
             .WithDescription("Получить все счёта текущего пользователя");
 
         groupBuilder.MapPost("/account", OpenNewPaymentAccount)
             .WithName(nameof(OpenNewPaymentAccount))
-            .WithDescription("Открыть новый счёт для текущего пользователя");
+            .WithDescription("Открыть новый счёт для текущего пользователя")
+            .WithOpenApi(operation =>
+            {
+                operation.Deprecated = true;
+                return operation;
+            });
 
         groupBuilder.MapGet("/account/{accountNumber}/transaction", GetMyAccountTransactions)
             .WithName(nameof(GetMyAccountTransactions))
             .WithDescription("Получить трансакции по счёту для текущего пользователя");
 
         groupBuilder.MapPost("/account/transaction", MakeTransaction)
-            .WithDescription("Совершить трансакцию по счёту текущего пользователя");
+            .WithDescription("Совершить трансакцию по счёту текущего пользователя")
+            .WithOpenApi(operation =>
+            {
+                operation.Deprecated = true;
+                return operation;
+            });
 
         groupBuilder.MapPut("/account/{accountNumber}/freeze", FreezeAccount)
-            .WithDescription("Запрос пользователя заморозить счёт");
+            .WithDescription("Запрос пользователя заморозить счёт")
+            .WithOpenApi(operation =>
+            {
+                operation.Deprecated = true;
+                return operation;
+            });
 
         groupBuilder.MapPut("/account/{accountNumber}/unfreeze", UnfreezeAccount)
-            .WithDescription("Запрос пользователя разморозить счёт");
+            .WithDescription("Запрос пользователя разморозить счёт")
+            .WithOpenApi(operation =>
+            {
+                operation.Deprecated = true;
+                return operation;
+            });
 
         groupBuilder.MapPost("/account/{accountNumber}/close", CloseAccount)
-            .WithDescription("Запрос пользователя закрыть счёт");
+            .WithDescription("Запрос пользователя закрыть счёт")
+            .WithOpenApi(operation =>
+            {
+                operation.Deprecated = true;
+                return operation;
+            });
     }
-    
+
     internal static async Task<Ok<PaymentAccountDto[]>> GetMyAccounts(
         [FromServices] IExecutor<IGetCallingUserAccounts, Unit, PaymentAccountDto[]> getCallingUserAccounts,
         CancellationToken cancellationToken)
@@ -51,6 +76,7 @@ public static partial  class PaymentAccountEndpoints
         return TypedResults.Ok(await getCallingUserAccounts.Execute(new Unit(), cancellationToken));
     }
 
+    [Obsolete("Используйте POST /api/v2/account")]
     [ProducesResponseType(403)]
     [ProducesResponseType(404)]
     [ProducesResponseType(202)]
@@ -80,6 +106,7 @@ public static partial  class PaymentAccountEndpoints
         return result.MapToHttpResult(TypedResults.Ok);
     }
 
+    [Obsolete("Используйте POST /api/v2/account/transaction")]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
     [ProducesResponseType(409)]
@@ -93,6 +120,7 @@ public static partial  class PaymentAccountEndpoints
         return result.MapToHttpResult(idResult => TypedResults.Accepted(null as string, idResult));
     }
 
+    [Obsolete("Используйте POST /api/v2/account/{accountNumber}/freeze")]
     [ProducesResponseType(404)]
     [ProducesResponseType(403)]
     [ProducesResponseType(204)]
@@ -105,6 +133,7 @@ public static partial  class PaymentAccountEndpoints
         return result.MapToHttpResult(TypedResults.NoContent);
     }
 
+    [Obsolete("Используйте POST /api/v2/account/{accountNumber}/unfreeze")]
     [ProducesResponseType(404)]
     [ProducesResponseType(403)]
     [ProducesResponseType(204)]
@@ -117,6 +146,7 @@ public static partial  class PaymentAccountEndpoints
         return result.MapToHttpResult(TypedResults.NoContent);
     }
 
+    [Obsolete("Используйте POST /api/v2/account/{accountNumber}/close")]
     [ProducesResponseType(404)]
     [ProducesResponseType(403)]
     [ProducesResponseType(204)]

@@ -21,7 +21,12 @@ public static partial class AccountEndpoints
 
         groupBuilder.MapPost("/bank/account", CreateAccount)
             .WithName(nameof(CreateAccount))
-            .WithDescription("Создать счёт");
+            .WithDescription("Создать счёт")
+            .WithOpenApi(operation =>
+            {
+                operation.Deprecated = true;
+                return operation;
+            });
 
         groupBuilder.MapPut("/bank/account/search", SearchAccounts)
             .WithName(nameof(SearchAccounts))
@@ -33,15 +38,30 @@ public static partial class AccountEndpoints
 
         groupBuilder.MapPost("/bank/account/transaction", OpenTransaction)
             .WithName(nameof(OpenTransaction))
-            .WithDescription("Начать трансакцию между счётами");
+            .WithDescription("Начать трансакцию между счётами")
+            .WithOpenApi(operation =>
+            {
+                operation.Deprecated = true;
+                return operation;
+            });
 
         groupBuilder.MapPost("/bank/account/transaction/{transactionId}/commit", CommitTransaction)
             .WithName(nameof(CommitTransaction))
-            .WithDescription("Зафиксировать трансакцию между счётами");
+            .WithDescription("Зафиксировать трансакцию между счётами")
+            .WithOpenApi(operation =>
+            {
+                operation.Deprecated = true;
+                return operation;
+            });
 
         groupBuilder.MapPost("/bank/account/transaction/{transactionId}/cancel", CancelTransaction)
             .WithName(nameof(CancelTransaction))
-            .WithDescription("Отменить трансакцию между счётами");
+            .WithDescription("Отменить трансакцию между счётами")
+            .WithOpenApi(operation =>
+            {
+                operation.Deprecated = true;
+                return operation;
+            });
     }
 
     [Obsolete("Используйте POST /api/v2/bank/account")]

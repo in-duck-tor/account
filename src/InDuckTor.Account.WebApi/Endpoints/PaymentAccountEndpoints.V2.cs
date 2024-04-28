@@ -1,16 +1,10 @@
-﻿using FluentResults;
-using InDuckTor.Account.Contracts.Public;
+﻿using InDuckTor.Account.Contracts.Public;
 using InDuckTor.Account.Domain;
 using InDuckTor.Account.Features.Models;
-using InDuckTor.Account.Features.PaymentAccount;
 using InDuckTor.Account.KafkaClient;
-using InDuckTor.Account.WebApi.Mapping;
 using InDuckTor.Shared.Kafka;
-using InDuckTor.Shared.Security.Context;
-using InDuckTor.Shared.Strategies;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
-using FreezeAccount = InDuckTor.Account.Contracts.Public.FreezeAccount;
 
 namespace InDuckTor.Account.WebApi.Endpoints;
 
