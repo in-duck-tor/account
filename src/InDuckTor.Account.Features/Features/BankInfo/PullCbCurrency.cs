@@ -1,4 +1,5 @@
-﻿using InDuckTor.Account.Cbr.Integration;
+﻿using System.Globalization;
+using InDuckTor.Account.Cbr.Integration;
 using InDuckTor.Account.Domain;
 using InDuckTor.Account.Infrastructure.Database;
 using InDuckTor.Shared.Models;
@@ -13,18 +14,19 @@ public class PullCbrCurrencyRoutine(ICbrClient cbrClient, AccountsDbContext cont
 {
     // todo : move to config
     private const string CbrTimeZoneId = "Russian Standard Time";
+    private static readonly NumberFormatInfo NumberFormat = new() { NumberDecimalSeparator = "," };
 
     public async Task<Unit> Execute(Unit input, CancellationToken ct)
     {
         var cbrNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById(CbrTimeZoneId));
         var valCurs = await cbrClient.GetCurrencies(DateOnly.FromDateTime(cbrNow), ct);
-
+        
         var currencies = valCurs.Valute
             .Select(valute => new Currency
             {
                 Code = valute.CharCode,
                 NumericCode = valute.NumCode,
-                RateToRuble = decimal.Parse(valute.Value)
+                RateToRuble = decimal.Parse(valute.Value, NumberFormat)
             })
             .ToList();
 
