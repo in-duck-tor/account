@@ -1,12 +1,10 @@
 ﻿using FluentResults;
 using FluentResults.Extensions;
-using InDuckTor.Account.Contracts.Public;
 using InDuckTor.Account.Domain;
 using InDuckTor.Account.Features.Common;
 using InDuckTor.Account.Features.Models;
 using InDuckTor.Account.Features.Transactions;
 using InDuckTor.Account.Infrastructure.Database;
-using InDuckTor.Shared.Kafka;
 using InDuckTor.Shared.Models;
 using InDuckTor.Shared.Strategies;
 using AccountType = InDuckTor.Account.Domain.AccountType;
@@ -23,7 +21,7 @@ public class MakeTransaction(
     AccountsDbContext context,
     IExecutor<ICreateTransaction, CreateTransactionParams, Result<Transaction>> createTransaction,
     IExecutor<ICommitTransaction, long, Result> commitTransaction,
-    ITopicProducer<string, TransactionEnvelop> producer)
+    ITransactionEventsProducer producer)
     : IMakeTransaction
 {
     public Task<Result<MakeTransactionResult>> Execute(NewTransactionRequest input, CancellationToken ct)

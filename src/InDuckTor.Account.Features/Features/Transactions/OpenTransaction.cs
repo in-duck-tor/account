@@ -35,7 +35,7 @@ public class OpenTransaction(
     AccountsDbContext context,
     IExecutor<ICreateTransaction, CreateTransactionParams, Result<Transaction>> createTransaction,
     IExecutor<ICommitTransaction, long, Result> commitTransaction,
-    ITopicProducer<string, TransactionEnvelop> producer)
+    ITransactionEventsProducer producer)
     : IOpenTransaction
 {
     public async Task<Result<OpenTransactionResult>> Execute(OpenTransactionRequest input, CancellationToken ct)

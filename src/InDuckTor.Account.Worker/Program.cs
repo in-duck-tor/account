@@ -14,7 +14,7 @@ var builder = Host.CreateApplicationBuilder(args);
 var configuration = builder.Configuration;
 
 builder.Services.AddAccountsDbContext(configuration);
-builder.Services.AddAccountsWorkerKafka(configuration);
+builder.Services.AddWorkerKafka(configuration);
 builder.Services.AddAccountsHangfire(configuration);
 // Add the processing server as IHostedService
 builder.Services.AddHangfireServer((provider, options) =>
@@ -29,6 +29,7 @@ builder.Services.AddScoped<ISecurityContext, SecurityContext>();
 builder.Services.AddStrategiesFrom(
     Assembly.GetExecutingAssembly(),
     Assembly.GetAssembly(typeof(InDuckTor.Account.Features.Account.CreateAccount.ICreateAccount))!);
+builder.Services.AddWorkerServices();
 
 MapsterConfiguration.ConfigureMapster(Assembly.GetAssembly(typeof(AccountCommandsMapping))!);
 builder.AddAccountTelemetry();

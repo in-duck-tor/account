@@ -16,7 +16,7 @@ public interface ICommitTransaction : ICommand<long, Result>;
 
 public class CommitTransaction(
     AccountsDbContext context,
-    ITopicProducer<string, TransactionEnvelop> producer) : ICommitTransaction
+    ITransactionEventsProducer producer) : ICommitTransaction
 {
     public async Task<Result> Execute(long transactionId, CancellationToken ct)
     {

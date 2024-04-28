@@ -13,7 +13,7 @@ public interface ICancelTransaction : ICommand<long, Result>;
 
 public class CancelTransaction(
     AccountsDbContext context,
-    ITopicProducer<string, TransactionEnvelop> producer) : ICancelTransaction
+    ITransactionEventsProducer producer) : ICancelTransaction
 {
     public async Task<Result> Execute(long transactionId, CancellationToken ct)
     {

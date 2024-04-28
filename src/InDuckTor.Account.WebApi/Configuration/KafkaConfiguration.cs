@@ -10,7 +10,7 @@ namespace InDuckTor.Account.WebApi.Configuration;
 
 public static class KafkaConfiguration
 {
-    public static IServiceCollection AddAccountsApiKafka(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddWebApiKafka(this IServiceCollection services, IConfiguration configuration)
     {
         var kafkaConfig = configuration.GetSection("Kafka");
         var schemaRegistries = kafkaConfig.GetSection("SchemaRegistries");

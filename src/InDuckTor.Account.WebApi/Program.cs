@@ -25,12 +25,13 @@ builder.Services.AddSerilog((provider, loggerConfiguration) =>
 
 builder.Services.AddStrategiesFrom(Assembly.GetAssembly(typeof(ICreateTransaction))!);
 builder.Services.AddCbrIntegration();
+builder.Services.AddWebApiServices();
 
 builder.Services.AddInDuckTorAuthentication(configuration.GetSection(nameof(JwtSettings)));
 builder.Services.AddAuthorization();
 builder.Services.AddInDuckTorSecurity();
 
-builder.Services.AddAccountsApiKafka(configuration);
+builder.Services.AddWebApiKafka(configuration);
 builder.Services.AddAccountsDbContext(configuration);
 builder.Services.AddAccountsHangfire(configuration);
 

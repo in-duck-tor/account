@@ -12,7 +12,7 @@ namespace InDuckTor.Account.Worker.Configuration;
 
 public static class KafkaConfiguration
 {
-    public static IServiceCollection AddAccountsWorkerKafka(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddWorkerKafka(this IServiceCollection services, IConfiguration configuration)
     {
         var kafkaConfig = configuration.GetSection("Kafka");
         var schemaRegistries = kafkaConfig.GetSection("SchemaRegistries");
