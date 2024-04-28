@@ -20,5 +20,5 @@ VOLUME /app/certs
 WORKDIR /app
 COPY --from=build /app/publish .
 ENV OTEL_RESOURCE_ATTRIBUTES="service.name=account-api"
-    ASPNETCORE_URLS="http://*:80"
+ENV ASPNETCORE_URLS="http://*:80"
 ENTRYPOINT ["dotnet", "InDuckTor.Account.WebApi.dll"]
