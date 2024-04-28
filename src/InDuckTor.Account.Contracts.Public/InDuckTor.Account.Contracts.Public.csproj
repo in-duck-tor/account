@@ -32,9 +32,9 @@
         <!--        <Protobuf Include="$(PkgInDuckTor_Shared_Protobuf)\shared\**\*.proto" ProtoRoot="$(PkgInDuckTor_Shared_Protobuf)"/>-->
     </ItemGroup>
 
-    <ItemGroup>
-      <Compile Include="obj\Debug\net8.0\*.cs" />
-    </ItemGroup>
+<!--    <ItemGroup>-->
+<!--      <Compile Include="obj\Debug\net8.0\*.cs" />-->
+<!--    </ItemGroup>-->
 
 
 </Project>

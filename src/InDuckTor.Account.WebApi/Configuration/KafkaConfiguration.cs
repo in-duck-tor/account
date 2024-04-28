@@ -4,6 +4,7 @@ using InDuckTor.Account.Contracts.Public;
 using InDuckTor.Account.KafkaClient;
 using InDuckTor.Shared.Kafka;
 using InDuckTor.Shared.Kafka.Interceptors;
+using InDuckTor.Shared.Protobuf;
 
 namespace InDuckTor.Account.WebApi.Configuration;
 
@@ -33,6 +34,36 @@ public static class KafkaConfiguration
                     builder
                         .AddInterceptor<ConversationProducerInterceptor<AccountCommandKey, AccountCommandEnvelop>>()
                         .AddInterceptor<AccountCommandSecurityContextEnrich>();
+                })
+
+            // Легаси поддержка для v1 комманд
+            // todo : remove  
+            .AddNullProducer<string, CommandHandlingFail>()
+            .AddProducer<string, AccountEnvelop>(
+                configSection: producers.GetSection("Account"),
+                configureBuilder: builder =>
+                {
+                    var schemaRegistryConfig = defaultSchemaRegistry.Get<SchemaRegistryConfig>();
+                    var schemaRegistryClient = new CachedSchemaRegistryClient(schemaRegistryConfig);
+                    builder.SetValueSerializer(new ProtobufSerializer<AccountEnvelop>(schemaRegistryClient));
+                },
+                addInterceptors: builder =>
+                {
+                    builder.AddInterceptor<ConversationProducerInterceptor<string, AccountEnvelop>>();
+                    ;
+                })
+            .AddProducer<long, TransactionEnvelop>(
+                configSection: producers.GetSection("Transaction"),
+                configureBuilder: builder =>
+                {
+                    var schemaRegistryConfig = defaultSchemaRegistry.Get<SchemaRegistryConfig>();
+                    var schemaRegistryClient = new CachedSchemaRegistryClient(schemaRegistryConfig);
+                    builder.SetValueSerializer(new ProtobufSerializer<TransactionEnvelop>(schemaRegistryClient));
+                },
+                addInterceptors: builder =>
+                {
+                    builder.AddInterceptor<ConversationProducerInterceptor<long, TransactionEnvelop>>();
+                    ;
                 });
 
         return services;
