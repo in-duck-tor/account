@@ -9,11 +9,11 @@ COPY --parents ./src/**/*.csproj .
 COPY ./*.sln .
 COPY ./nuget.config .
 RUN dotnet nuget update source github.in-duck-tor -u $GH_USERNAME -p $GH_TOKEN --store-password-in-clear-text
-RUN dotnet restore --runtime linux-x64
+RUN dotnet restore --runtime linux-x64 ./src/InDuckTor.Account.WebApi/InDuckTor.Account.Worker.csproj
 
 COPY . .
-RUN dotnet build -c Release --no-restore
-RUN dotnet publish -c Release -o ./publish/ --no-restore
+RUN dotnet build -c Release --no-restore ./src/InDuckTor.Account.WebApi/InDuckTor.Account.Worker.csproj
+RUN dotnet publish -c Release -o ./publish/ --no-restore ./src/InDuckTor.Account.WebApi/InDuckTor.Account.Worker.csproj
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 as runtime
 VOLUME /app/certs
