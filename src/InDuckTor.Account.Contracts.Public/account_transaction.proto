@@ -24,7 +24,7 @@ message TransactionStarted {
   int32 initiated_by_id = 4;
 
   message Target {
-    int64 bank_code = 1;
+    int32 bank_code = 1;
     // Трёхбуквенный алфавитный код ISO 4217
     string currency_code = 2;
     string account_number = 3;

@@ -8,7 +8,7 @@ public class BankInfo
     public required BankCode BankCode { get; init; }
 
     public string? Name { get; set; }
-    public static BankCode InDuckTorBankCode = default;
+    public static readonly BankCode InDuckTorBankCode = default;
 }
 
 /// <summary>

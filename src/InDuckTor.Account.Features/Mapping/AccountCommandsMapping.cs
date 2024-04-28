@@ -2,7 +2,7 @@
 using InDuckTor.Account.Features.PaymentAccount;
 using InDuckTor.Account.Features.Transactions;
 using Mapster;
-using CreateAccount = InDuckTor.Account.Features.Account.CreateAccount.CreateAccount;
+using CreateAccount = InDuckTor.Account.Contracts.Public.CreateAccount;
 using FreezeAccount = InDuckTor.Account.Contracts.Public.FreezeAccount;
 using OpenTransaction = InDuckTor.Account.Contracts.Public.OpenTransaction;
 
