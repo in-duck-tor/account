@@ -1,10 +1,13 @@
 ﻿using InDuckTor.Account.Contracts.Public;
 using InDuckTor.Account.Domain;
 using InDuckTor.Account.Features.Models;
+using InDuckTor.Account.Features.PaymentAccount;
 using InDuckTor.Account.KafkaClient;
 using InDuckTor.Shared.Kafka;
+using InDuckTor.Shared.Security.Context;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
+using AccountType = InDuckTor.Account.Contracts.Public.AccountType;
 
 namespace InDuckTor.Account.WebApi.Endpoints;
 
@@ -16,6 +19,7 @@ public static partial class PaymentAccountEndpoints
             .WithTags("PaymentAccounts V2")
             .WithOpenApi()
             .RequireAuthorization();
+
 
         groupBuilder.MapPost("/account/transaction", MakeTransactionV2)
             .WithName(nameof(MakeTransactionV2))
@@ -32,6 +36,10 @@ public static partial class PaymentAccountEndpoints
         groupBuilder.MapPost("/account/{accountNumber}/close", CloseAccountV2)
             .WithName(nameof(CloseAccountV2))
             .WithDescription("Запрос пользователя закрыть счёт");
+
+        groupBuilder.MapPost("/account", OpenNewPaymentAccountV2)
+            .WithName(nameof(OpenNewPaymentAccountV2))
+            .WithDescription("Открыть новый счёт для текущего пользователя");
     }
 
     [ProducesResponseType(202)]
@@ -50,7 +58,7 @@ public static partial class PaymentAccountEndpoints
         [FromServices] ITopicProducer<AccountCommandKey, AccountCommandEnvelop> producer,
         CancellationToken ct)
     {
-        await producer.ProduceAccountCommand(new() { FreezeAccount = new() { AccountNumber = accountNumber, Unfreeze = false } },cancellationToken: ct);
+        await producer.ProduceAccountCommand(new() { FreezeAccount = new() { AccountNumber = accountNumber, Unfreeze = false } }, cancellationToken: ct);
         return TypedResults.StatusCode(202);
     }
 
@@ -60,7 +68,7 @@ public static partial class PaymentAccountEndpoints
         [FromServices] ITopicProducer<AccountCommandKey, AccountCommandEnvelop> producer,
         CancellationToken ct)
     {
-        await producer.ProduceAccountCommand(new() { FreezeAccount = new() { AccountNumber = accountNumber, Unfreeze = true } },cancellationToken: ct);         
+        await producer.ProduceAccountCommand(new() { FreezeAccount = new() { AccountNumber = accountNumber, Unfreeze = true } }, cancellationToken: ct);
         return TypedResults.StatusCode(202);
     }
 
@@ -70,7 +78,28 @@ public static partial class PaymentAccountEndpoints
         [FromServices] ITopicProducer<AccountCommandKey, AccountCommandEnvelop> producer,
         CancellationToken ct)
     {
-        await producer.ProduceAccountCommand(new() { CloseAccount = new() { AccountNumber = accountNumber } },cancellationToken: ct);
+        await producer.ProduceAccountCommand(new() { CloseAccount = new() { AccountNumber = accountNumber } }, cancellationToken: ct);
+        return TypedResults.StatusCode(202);
+    }
+
+    [ProducesResponseType(202)]
+    internal static async Task<IResult> OpenNewPaymentAccountV2(
+        [FromBody] OpenPaymentAccountRequest request,
+        [FromServices] ITopicProducer<AccountCommandKey, AccountCommandEnvelop> producer,
+        [FromServices] ISecurityContext securityContext,
+        CancellationToken ct)
+    {
+        await producer.ProduceAccountCommand(new()
+        {
+            CreateAccount = new()
+            {
+                AccountType = AccountType.Payment,
+                CurrencyCode = request.CurrencyCode,
+                CustomComment = request.CurrencyCode,
+                PlanedExpiration = null,
+                ForUserId = securityContext.Currant.Id
+            }
+        }, cancellationToken: ct);
         return TypedResults.StatusCode(202);
     }
 }

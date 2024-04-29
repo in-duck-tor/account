@@ -1,4 +1,5 @@
-﻿using InDuckTor.Account.Features.Account.CreateAccount;
+﻿using InDuckTor.Account.Contracts.Public;
+using InDuckTor.Account.Features.Account.CreateAccount;
 using InDuckTor.Account.Features.PaymentAccount;
 using InDuckTor.Account.Features.Transactions;
 using Mapster;
