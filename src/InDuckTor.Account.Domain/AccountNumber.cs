@@ -73,4 +73,6 @@ public record struct AccountNumber(string Value) : IParsable<AccountNumber>
         => TryParse(value, out var result) ? result : throw new FormatException("Номер счёта должен состоять из 20 цифр");
 
     public static bool TryParse(string? value, IFormatProvider? formatProvider, out AccountNumber number) => TryParse(value, out number);
+
+    public override string ToString() => Value;
 }

@@ -4,6 +4,7 @@ option csharp_namespace = "InDuckTor.Account.Contracts.Public";
 
 package account;
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
 import "shared/user_principal.proto";
 import "shared/decimal.proto";
 import "account.proto";
@@ -46,7 +47,7 @@ message FreezeAccount {
 message OpenTransaction {
   NewTransaction new_transaction = 1;
   bool execute_immediate = 2;
-  double requested_transaction_ttl = 3;
+  google.protobuf.DoubleValue requested_transaction_ttl = 3;
 }
 
 message NewTransaction {
