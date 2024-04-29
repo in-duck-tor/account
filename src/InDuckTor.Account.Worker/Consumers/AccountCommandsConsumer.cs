@@ -16,15 +16,16 @@ using Mapster;
 
 namespace InDuckTor.Account.Worker.Consumers;
 
+[RetryStrategyStatic(10, [ 1 ])]
 [Intercept(typeof(ConversationConsumerInterceptor<string, AccountCommandEnvelop>))]
 public class AccountCommandsConsumer : IConsumerStrategy<string, AccountCommandEnvelop>
 {
     private readonly ISecurityContext _securityContext;
     private readonly IServiceProvider _serviceProvider;
-    private readonly ITopicProducer<string, CommandHandlingFail> _onFailProducer;
+    private readonly ITopicProducer<string, CommandHandlingProblemDetails> _onFailProducer;
     private readonly ILogger<AccountCommandsConsumer> _logger;
 
-    public AccountCommandsConsumer(ISecurityContext securityContext, IServiceProvider serviceProvider, ITopicProducer<string, CommandHandlingFail> onFailProducer, ILogger<AccountCommandsConsumer> logger)
+    public AccountCommandsConsumer(ISecurityContext securityContext, IServiceProvider serviceProvider, ITopicProducer<string, CommandHandlingProblemDetails> onFailProducer, ILogger<AccountCommandsConsumer> logger)
     {
         _securityContext = securityContext;
         _serviceProvider = serviceProvider;
@@ -78,10 +79,10 @@ public class AccountCommandsConsumer : IConsumerStrategy<string, AccountCommandE
                 result = Result.Ok();
                 break;
         }
-
+        
         if (result.IsFailed)
         {
-            var fail = new CommandHandlingFail
+            var fail = new CommandHandlingProblemDetails
             {
                 Type = $"{input.Message.Value.PayloadCase}/unknown", // todo добавить коды\типы доменных ошибок
                 Title = string.Join('\n', result.Errors.Select(error => error.Message)),
@@ -89,7 +90,8 @@ public class AccountCommandsConsumer : IConsumerStrategy<string, AccountCommandE
             };
             await _onFailProducer.Produce(input.Message.Key, fail, ct);
 
-            return ProcessingResult.Fail;
+            // domain error - no retry
+            return ProcessingResult.Skip;
         }
 
         return ProcessingResult.Ok;

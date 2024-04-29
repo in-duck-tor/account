@@ -31,17 +31,17 @@ public static class KafkaConfiguration
                     ;
                 }
             )
-            .AddProducer<string, CommandHandlingFail>(
+            .AddProducer<string, CommandHandlingProblemDetails>(
                 configSection: producers.GetSection("AccountCommandFail"),
                 configureBuilder: builder =>
                 {
                     var schemaRegistryConfig = defaultSchemaRegistry.Get<SchemaRegistryConfig>();
                     var schemaRegistryClient = new CachedSchemaRegistryClient(schemaRegistryConfig);
-                    builder.SetValueSerializer(new ProtobufSerializer<CommandHandlingFail>(schemaRegistryClient));
+                    builder.SetValueSerializer(new ProtobufSerializer<CommandHandlingProblemDetails>(schemaRegistryClient));
                 },
                 addInterceptors: builder =>
                 {
-                    builder.AddInterceptor<ConversationProducerInterceptor<string, CommandHandlingFail>>();
+                    builder.AddInterceptor<ConversationProducerInterceptor<string, CommandHandlingProblemDetails>>();
                     ;
                 })
             .AddProducer<string, AccountEnvelop>(

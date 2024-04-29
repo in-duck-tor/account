@@ -38,7 +38,7 @@ public static class KafkaConfiguration
 
             // Легаси поддержка для v1 комманд
             // todo : remove  
-            .AddNullProducer<string, CommandHandlingFail>()
+            .AddNullProducer<string, CommandHandlingProblemDetails>()
             .AddProducer<string, AccountEnvelop>(
                 configSection: producers.GetSection("Account"),
                 configureBuilder: builder =>
