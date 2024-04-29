@@ -21,7 +21,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="InDuckTor.Shared" Version="2.2.5" />
+      <PackageReference Include="InDuckTor.Shared" Version="2.2.6" />
       <PackageReference Include="Mapster" Version="7.4.0" />
     </ItemGroup>
 
