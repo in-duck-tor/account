@@ -1,13 +1,15 @@
 ﻿using InDuckTor.Account.Contracts.Public;
 using InDuckTor.Account.Features.Account.CreateAccount;
+using InDuckTor.Account.Features.Transactions;
 using InDuckTor.Account.KafkaClient;
 using InDuckTor.Shared.Kafka;
-using InDuckTor.Shared.Protobuf;
-using InDuckTor.Shared.Security.Context;
 using Mapster;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using CancelTransaction = InDuckTor.Account.Contracts.Public.CancelTransaction;
+using CommitTransaction = InDuckTor.Account.Contracts.Public.CommitTransaction;
 using CreateAccount = InDuckTor.Account.Contracts.Public.CreateAccount;
+using OpenTransaction = InDuckTor.Account.Contracts.Public.OpenTransaction;
 
 namespace InDuckTor.Account.WebApi.Endpoints;
 
@@ -39,60 +41,40 @@ public static partial class AccountEndpoints
 
     internal static async Task<Accepted> CreateAccountV2(
         [FromBody] CreateAccountRequest request,
-        [FromServices] ISecurityContext securityContext,
         [FromServices] ITopicProducer<AccountCommandKey, AccountCommandEnvelop> commandProducer,
         CancellationToken ct)
     {
-        await commandProducer.ProduceAccountCommand(new AccountCommandEnvelop
-            {
-                CallingUser = UserPrincipal.FromClaims(securityContext.Currant.Claims),
-                CreateAccount = request.Adapt<CreateAccount>()
-            },
+        await commandProducer.ProduceAccountCommand(new AccountCommandEnvelop { CreateAccount = request.Adapt<CreateAccount>() },
             cancellationToken: ct);
         return TypedResults.Accepted(null as string);
     }
 
     internal static async Task<Accepted> OpenTransactionV2(
-        [FromBody] CreateAccountRequest request,
-        [FromServices] ISecurityContext securityContext,
+        [FromBody] OpenTransactionRequest request,
         [FromServices] ITopicProducer<AccountCommandKey, AccountCommandEnvelop> commandProducer,
         CancellationToken ct)
     {
-        await commandProducer.ProduceAccountCommand(new AccountCommandEnvelop
-            {
-                CallingUser = UserPrincipal.FromClaims(securityContext.Currant.Claims),
-                OpenTransaction = request.Adapt<OpenTransaction>()
-            },
+        await commandProducer.ProduceAccountCommand(new AccountCommandEnvelop { OpenTransaction = request.Adapt<OpenTransaction>() },
             cancellationToken: ct);
         return TypedResults.Accepted(null as string);
     }
 
     internal static async Task<Accepted> CommitTransactionV2(
         [FromBody] CreateAccountRequest request,
-        [FromServices] ISecurityContext securityContext,
         [FromServices] ITopicProducer<AccountCommandKey, AccountCommandEnvelop> commandProducer,
         CancellationToken ct)
     {
-        await commandProducer.ProduceAccountCommand(new AccountCommandEnvelop
-            {
-                CallingUser = UserPrincipal.FromClaims(securityContext.Currant.Claims),
-                CommitTransaction = request.Adapt<CommitTransaction>()
-            },
+        await commandProducer.ProduceAccountCommand(new AccountCommandEnvelop { CommitTransaction = request.Adapt<CommitTransaction>() },
             cancellationToken: ct);
         return TypedResults.Accepted(null as string);
     }
 
     internal static async Task<Accepted> CancelTransactionV2(
         [FromBody] CreateAccountRequest request,
-        [FromServices] ISecurityContext securityContext,
         [FromServices] ITopicProducer<AccountCommandKey, AccountCommandEnvelop> commandProducer,
         CancellationToken ct)
     {
-        await commandProducer.ProduceAccountCommand(new AccountCommandEnvelop
-            {
-                CallingUser = UserPrincipal.FromClaims(securityContext.Currant.Claims),
-                CancelTransaction = request.Adapt<CancelTransaction>()
-            },
+        await commandProducer.ProduceAccountCommand(new AccountCommandEnvelop { CancelTransaction = request.Adapt<CancelTransaction>() },
             cancellationToken: ct);
         return TypedResults.Accepted(null as string);
     }

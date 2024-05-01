@@ -95,7 +95,7 @@ public static partial class PaymentAccountEndpoints
             {
                 AccountType = AccountType.Payment,
                 CurrencyCode = request.CurrencyCode,
-                CustomComment = request.CurrencyCode,
+                CustomComment = request.CustomComment,
                 PlanedExpiration = null,
                 ForUserId = securityContext.Currant.Id
             }

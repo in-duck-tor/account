@@ -1,5 +1,4 @@
-﻿using InDuckTor.Account.Contracts.Public;
-using InDuckTor.Account.Features.Account.CreateAccount;
+﻿using InDuckTor.Account.Features.Account.CreateAccount;
 using InDuckTor.Account.Features.Models;
 using InDuckTor.Account.Features.PaymentAccount;
 using InDuckTor.Account.Features.Transactions;
