@@ -67,4 +67,5 @@ message AccountStateChanged {
   AccountState state = 3;
   // Пользователь которым было совершено изменение
   int32 changed_by_id = 4;
+  int32 owner_id = 5;
 }

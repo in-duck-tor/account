@@ -4,6 +4,7 @@ option csharp_namespace = "InDuckTor.Account.Contracts.Public";
 
 package account;
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
 import "shared/decimal.proto";
 import "shared/enum_options.proto";
 
@@ -35,6 +36,7 @@ message TransactionStarted {
     // double amount = ;  
     // bytes amount = ;   бинарная сериализация decimal
     shared.DecimalValue amount = 4;
+    google.protobuf.Int32Value account_owner_id = 5;
   }
 
   optional Target DepositOn = 5;
