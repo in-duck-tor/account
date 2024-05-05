@@ -79,14 +79,14 @@ public class AccountCommandsConsumer : IConsumerStrategy<string, AccountCommandE
                 result = Result.Ok();
                 break;
         }
-        
+
         if (result.IsFailed)
         {
             var fail = new CommandHandlingProblemDetails
             {
                 Type = $"{input.Message.Value.PayloadCase}/unknown", // todo добавить коды\типы доменных ошибок
                 Title = string.Join('\n', result.Errors.Select(error => error.Message)),
-                Reasons = { result.Reasons.Select(reason => reason.Message) }
+                Reasons = { result.Reasons.Where(reason => !string.IsNullOrEmpty(reason.Message)).Select(reason => reason.Message) }
             };
             await _onFailProducer.Produce(input.Message.Key, fail, ct);
 
