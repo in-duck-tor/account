@@ -76,7 +76,8 @@ public class CreateTransaction(AccountsDbContext context, ISecurityContext secur
         if (account is null)
             return new TransactionTarget(transactionMoneyAmount, requestTarget.AccountNumber, requestTarget.BankCode);
 
-        return new TransactionTarget(transactionMoneyAmount.TransferTo(account.Currency), account.Number, account.BankCode);
+        return new TransactionTarget(transactionMoneyAmount.TransferTo(account.Currency), account.Number, account.BankCode)
+            { Account = account };
     }
 
 

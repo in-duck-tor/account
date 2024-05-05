@@ -164,6 +164,7 @@ public record TransactionTarget(decimal Amount, AccountNumber AccountNumber, str
     public Money Money => new Money(Amount, Currency);
     public Currency Currency { get; init; } = null!;
     public BankInfo BankInfo { get; init; } = null!;
+    public Account? Account { get; init; }
 
     public bool IsExternal => BankCode.IsExternal;
 

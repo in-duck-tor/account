@@ -20,7 +20,10 @@ public class CommitTransaction(
 {
     public async Task<Result> Execute(long transactionId, CancellationToken ct)
     {
-        var transaction = await context.Transactions.Include(x => x.Reservations)
+        var transaction = await context.Transactions
+            .Include(x => x.Reservations)
+            // .Include(x => x.DepositOn!.Account)
+            // .Include(x => x.WithdrawFrom!.Account)
             .FirstOrDefaultAsync(x => x.Id == transactionId, ct);
         if (transaction is null) return new DomainErrors.Transaction.NotFound(transactionId);
 

@@ -219,6 +219,11 @@ namespace InDuckTor.Account.Infrastructure.Database.Migrations
 
                             b1.ToTable("Transaction", "account");
 
+                            b1.HasOne("InDuckTor.Account.Domain.Account", "Account")
+                                .WithMany()
+                                .HasForeignKey("AccountNumber")
+                                .OnDelete(DeleteBehavior.NoAction);
+
                             b1.HasOne("InDuckTor.Account.Domain.BankInfo", "BankInfo")
                                 .WithMany()
                                 .HasForeignKey("BankCode")
@@ -233,6 +238,8 @@ namespace InDuckTor.Account.Infrastructure.Database.Migrations
 
                             b1.WithOwner()
                                 .HasForeignKey("TransactionId");
+
+                            b1.Navigation("Account");
 
                             b1.Navigation("BankInfo");
 
@@ -268,6 +275,11 @@ namespace InDuckTor.Account.Infrastructure.Database.Migrations
 
                             b1.ToTable("Transaction", "account");
 
+                            b1.HasOne("InDuckTor.Account.Domain.Account", "Account")
+                                .WithMany()
+                                .HasForeignKey("AccountNumber")
+                                .OnDelete(DeleteBehavior.NoAction);
+
                             b1.HasOne("InDuckTor.Account.Domain.BankInfo", "BankInfo")
                                 .WithMany()
                                 .HasForeignKey("BankCode")
@@ -282,6 +294,8 @@ namespace InDuckTor.Account.Infrastructure.Database.Migrations
 
                             b1.WithOwner()
                                 .HasForeignKey("TransactionId");
+
+                            b1.Navigation("Account");
 
                             b1.Navigation("BankInfo");
 

@@ -37,7 +37,8 @@ public static class EventsMapping
                 Type = (AccountType)account.Type,
                 State = (AccountState)account.State,
                 AccountNumber = account.Number,
-                ChangedById = changedBy
+                ChangedById = changedBy,
+                OwnerId = account.OwnerId
             }
         };
 
@@ -49,7 +50,7 @@ public static class EventsMapping
             {
                 Id = transaction.Id,
                 Type = (TransactionType)transaction.Type,
-                Status = (TransactionStatus)transaction.Type,
+                Status = (TransactionStatus)transaction.Status,
                 DepositOn = transaction.DepositOn?.ToTransactionEnvelopTarget(),
                 WithdrawFrom = transaction.WithdrawFrom?.ToTransactionEnvelopTarget()
             }
@@ -61,7 +62,8 @@ public static class EventsMapping
             AccountNumber = target.AccountNumber,
             BankCode = target.BankCode,
             CurrencyCode = target.CurrencyCode,
-            Amount = target.Amount
+            Amount = target.Amount,
+            AccountOwnerId = target.Account?.OwnerId
         };
 
     public static TransactionEnvelop ToFinishedEventEnvelop(this Transaction transaction)

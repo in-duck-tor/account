@@ -40,26 +40,29 @@ public class OpenTransaction(
 {
     public async Task<Result<OpenTransactionResult>> Execute(OpenTransactionRequest input, CancellationToken ct)
     {
-        TimeSpan? ttl = input.RequestedTransactionTtl != null ? TimeSpan.FromSeconds(input.RequestedTransactionTtl.Value) : null;
+        TimeSpan? ttl = input.RequestedTransactionTtl != null 
+            ? TimeSpan.FromSeconds(input.RequestedTransactionTtl.Value) 
+            : null;
+        
         var result = await createTransaction.Execute(new CreateTransactionParams(input.NewTransaction, ttl), ct);
         if (!result.IsSuccess) return result.ToResult();
-        
+
         await context.SaveChangesAsync(ct);
 
         var transaction = result.Value;
+        await producer.ProduceTransactionStarted(transaction, ct);
+        
         if (input.ExecuteImmediate)
         {
-            await ScheduleTransactionRoutine(transaction, ct);
+            await EvaluateTransaction(transaction, ct);
         }
         
-        await producer.ProduceTransactionStarted(transaction, ct);
-
         return new OpenTransactionResult(transaction.Id, transaction.Type, transaction.Status, transaction.AutoCloseAt);
     }
 
-    // todo use hangfire
-    private async Task ScheduleTransactionRoutine(Transaction transaction, CancellationToken ct)
+    private async Task EvaluateTransaction(Transaction transaction, CancellationToken ct)
     {
+        // todo create non-holistic strategy and reuse it
         await commitTransaction.Execute(transaction.Id, ct);
     }
 }
