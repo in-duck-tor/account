@@ -30,7 +30,7 @@ public class CreateTransaction(AccountsDbContext context, ISecurityContext secur
             });
 
 
-    private static readonly Error Forbid = new Errors.Forbidden();
+    private static readonly Error Forbid = new Errors.Forbidden(); // todo error messages 
 
     private async ValueTask<Result<Transaction>> CreateNew(NewTransactionRequest request, TimeSpan ttl, CancellationToken ct)
     {
@@ -50,7 +50,7 @@ public class CreateTransaction(AccountsDbContext context, ISecurityContext secur
 
                 return new Transaction(
                     depositOn: CreateTarget(transactionMoneyAmount, request.DepositOn, depositAccount),
-                    withdrawFrom: CreateTarget(transactionMoneyAmount, request.WithdrawFrom, depositAccount),
+                    withdrawFrom: CreateTarget(transactionMoneyAmount, request.WithdrawFrom, withdrawAccount),
                     ttl,
                     currantUser.Id);
             });
