@@ -52,7 +52,6 @@ public static partial class AccountEndpoints
         [FromServices] ITopicProducer<AccountCommandKey, AccountCommandEnvelop> commandProducer,
         CancellationToken ct)
     {
-        return TypedResults.Accepted(null as string);
         await commandProducer.ProduceAccountCommand(new AccountCommandEnvelop { CreateAccount = request.Adapt<CreateAccount>() },
             cancellationToken: ct);
         return TypedResults.Accepted(null as string);
