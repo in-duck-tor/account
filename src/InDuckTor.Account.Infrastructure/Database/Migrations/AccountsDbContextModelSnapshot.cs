@@ -161,6 +161,26 @@ namespace InDuckTor.Account.Infrastructure.Database.Migrations
                     b.ToTable("Transaction", "account");
                 });
 
+            modelBuilder.Entity("InDuckTor.Shared.Idempotency.Http.IdempotencyRecord", b =>
+                {
+                    b.Property<string>("Key")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RequestMatch")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("IdempotencyRecord", "account");
+                });
+
             modelBuilder.Entity("InDuckTor.Account.Domain.Account", b =>
                 {
                     b.HasOne("InDuckTor.Account.Domain.BankInfo", "BankInfo")
@@ -305,6 +325,35 @@ namespace InDuckTor.Account.Infrastructure.Database.Migrations
                     b.Navigation("DepositOn");
 
                     b.Navigation("WithdrawFrom");
+                });
+
+            modelBuilder.Entity("InDuckTor.Shared.Idempotency.Http.IdempotencyRecord", b =>
+                {
+                    b.OwnsOne("InDuckTor.Shared.Idempotency.Http.IdempotencyRecord+Response", "CachedResponse", b1 =>
+                        {
+                            b1.Property<string>("IdempotencyRecordKey")
+                                .HasColumnType("text");
+
+                            b1.Property<KeyValuePair<string, string>[]>("Headers")
+                                .IsRequired()
+                                .HasColumnType("jsonb");
+
+                            b1.Property<byte[]>("ResponseBody")
+                                .IsRequired()
+                                .HasColumnType("bytea");
+
+                            b1.Property<int>("ResponseCode")
+                                .HasColumnType("integer");
+
+                            b1.HasKey("IdempotencyRecordKey");
+
+                            b1.ToTable("IdempotencyRecord", "account");
+
+                            b1.WithOwner()
+                                .HasForeignKey("IdempotencyRecordKey");
+                        });
+
+                    b.Navigation("CachedResponse");
                 });
 
             modelBuilder.Entity("InDuckTor.Account.Domain.Transaction", b =>

@@ -18,5 +18,6 @@ public class MaintenanceBackGroundService : BackgroundService
     private void ScheduleStaticJobs()
     {
         PullCbCurrencyJob.Schedule(_configuration);
+        RemoveExpiredIdempotencyRecordsJob.Schedule(_configuration);
     }
 }

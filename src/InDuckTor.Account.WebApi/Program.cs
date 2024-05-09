@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Text;
 using InDuckTor.Account.Cbr.Integration;
 using InDuckTor.Account.Features.Common;
 using InDuckTor.Account.Features.Mapping;
@@ -7,6 +8,8 @@ using InDuckTor.Account.Infrastructure.Hangfire;
 using InDuckTor.Account.Telemetry;
 using InDuckTor.Account.WebApi.Configuration;
 using InDuckTor.Account.WebApi.Endpoints;
+using InDuckTor.Account.WebApi.Services;
+using InDuckTor.Shared.Idempotency.Http;
 using InDuckTor.Shared.Security.Http;
 using InDuckTor.Shared.Security.Jwt;
 using InDuckTor.Shared.Strategies;
@@ -46,6 +49,7 @@ builder.Services.AddCors(options => { options.AddDefaultPolicy(policyBuilder => 
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddAccountSwaggerGen();
+builder.Services.AddIdempotencyHttpServices<IdempotencyRecordRepository>(ServiceLifetime.Scoped);
 
 
 var app = builder.Build();
@@ -62,10 +66,11 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseInDuckTorSecurity();
+app.UseIdempotencyMiddleware();
 
-app.AddPaymentAccountEndpoints()
-    .AddBankingAccountEndpoints()
-    .AddBankInfoEndpoints()
-    .AddToolEndpoints();
+app.UsePaymentAccountEndpoints()
+    .UseBankingAccountEndpoints()
+    .UseBankInfoEndpoints()
+    .UseToolEndpoints();
 
 app.Run();

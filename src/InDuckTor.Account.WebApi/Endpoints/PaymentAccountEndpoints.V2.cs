@@ -3,6 +3,7 @@ using InDuckTor.Account.Domain;
 using InDuckTor.Account.Features.Models;
 using InDuckTor.Account.Features.PaymentAccount;
 using InDuckTor.Account.KafkaClient;
+using InDuckTor.Shared.Idempotency.Http;
 using InDuckTor.Shared.Kafka;
 using InDuckTor.Shared.Security.Context;
 using Mapster;
@@ -18,7 +19,8 @@ public static partial class PaymentAccountEndpoints
         var groupBuilder = builder.MapGroup("/api/v2")
             .WithTags("PaymentAccounts V2")
             .WithOpenApi()
-            .RequireAuthorization();
+            .RequireAuthorization()
+            .WithIdempotencyKey(ttlSeconds: 8 * 60 * 60);
 
 
         groupBuilder.MapPost("/account/transaction", MakeTransactionV2)

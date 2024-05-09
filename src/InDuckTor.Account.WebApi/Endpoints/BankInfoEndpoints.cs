@@ -9,7 +9,7 @@ namespace InDuckTor.Account.WebApi.Endpoints;
 
 public static class BankInfoEndpoints
 {
-    public static IEndpointRouteBuilder AddBankInfoEndpoints(this IEndpointRouteBuilder builder)
+    public static IEndpointRouteBuilder UseBankInfoEndpoints(this IEndpointRouteBuilder builder)
     {
         var groupBuilder = builder.MapGroup("/api/v1")
             .WithTags("BankInfo")

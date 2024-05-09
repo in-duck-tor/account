@@ -1,24 +1,15 @@
-﻿using FluentResults;
-using Google.Protobuf.WellKnownTypes;
-using Hangfire;
-using InDuckTor.Account.Contracts.Public;
-using InDuckTor.Account.Features.Account.CreateAccount;
+﻿using Hangfire;
 using InDuckTor.Account.Features.BankInfo;
-using InDuckTor.Account.Features.Models;
-using InDuckTor.Shared.Kafka;
+using InDuckTor.Shared.Idempotency.Http;
 using InDuckTor.Shared.Models;
-using InDuckTor.Shared.Protobuf;
-using InDuckTor.Shared.Security.Context;
 using InDuckTor.Shared.Strategies;
 using Microsoft.AspNetCore.Http.HttpResults;
-using AccountType = InDuckTor.Account.Domain.AccountType;
-using CreateAccount = InDuckTor.Account.Contracts.Public.CreateAccount;
 
 namespace InDuckTor.Account.WebApi.Endpoints;
 
 public static class ToolEndpoints
 {
-    public static IEndpointRouteBuilder AddToolEndpoints(this IEndpointRouteBuilder builder)
+    public static IEndpointRouteBuilder UseToolEndpoints(this IEndpointRouteBuilder builder)
     {
         var groupBuilder = builder.MapGroup("api/tool")
             .WithTags("ToolEndpoints")
@@ -26,6 +17,8 @@ public static class ToolEndpoints
             .WithOpenApi();
 
         groupBuilder.MapPost("/pull-cbr-currencies", PullCbrCurrencies);
+        groupBuilder.MapPost("/test-idempotency", TestIdempotency)
+            .WithIdempotencyKey();
 
         return builder;
     }
@@ -39,5 +32,10 @@ public static class ToolEndpoints
     {
         var jobId = backgroundJobClient.Enqueue((IExecutor<IPullCbrCurrencyRoutine, Unit, Unit> routine) => routine.Execute(new Unit(), default));
         return TypedResults.Accepted(null as string, jobId);
+    }
+
+    internal static Ok<DateTime> TestIdempotency()
+    {
+        return TypedResults.Ok(DateTime.UtcNow);
     }
 }

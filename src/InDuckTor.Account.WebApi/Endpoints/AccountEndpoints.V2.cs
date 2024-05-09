@@ -1,11 +1,18 @@
-﻿using InDuckTor.Account.Contracts.Public;
+﻿using System.Text;
+using InDuckTor.Account.Contracts.Public;
 using InDuckTor.Account.Features.Account.CreateAccount;
 using InDuckTor.Account.Features.Transactions;
+using InDuckTor.Account.Infrastructure.Database;
 using InDuckTor.Account.KafkaClient;
+using InDuckTor.Shared.Idempotency.Http;
 using InDuckTor.Shared.Kafka;
 using Mapster;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.Extensions.ObjectPool;
+using Microsoft.Extensions.Primitives;
+using Microsoft.OpenApi.Models;
 using CancelTransaction = InDuckTor.Account.Contracts.Public.CancelTransaction;
 using CommitTransaction = InDuckTor.Account.Contracts.Public.CommitTransaction;
 using CreateAccount = InDuckTor.Account.Contracts.Public.CreateAccount;
@@ -20,7 +27,8 @@ public static partial class AccountEndpoints
         var groupBuilder = builder.MapGroup("/api/v2")
             .WithTags("BankingAccounts V2")
             .WithOpenApi()
-            .RequireAuthorization();
+            .RequireAuthorization()
+            .WithIdempotencyKey(ttlSeconds: 8 * 60 * 60);
 
         groupBuilder.MapPost("/bank/account", CreateAccountV2)
             .WithName(nameof(CreateAccountV2))
@@ -44,6 +52,7 @@ public static partial class AccountEndpoints
         [FromServices] ITopicProducer<AccountCommandKey, AccountCommandEnvelop> commandProducer,
         CancellationToken ct)
     {
+        return TypedResults.Accepted(null as string);
         await commandProducer.ProduceAccountCommand(new AccountCommandEnvelop { CreateAccount = request.Adapt<CreateAccount>() },
             cancellationToken: ct);
         return TypedResults.Accepted(null as string);

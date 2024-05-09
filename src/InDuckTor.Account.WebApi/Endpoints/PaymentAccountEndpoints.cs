@@ -2,7 +2,7 @@
 
 public static partial class PaymentAccountEndpoints
 {
-    public static IEndpointRouteBuilder AddPaymentAccountEndpoints(this IEndpointRouteBuilder builder)
+    public static IEndpointRouteBuilder UsePaymentAccountEndpoints(this IEndpointRouteBuilder builder)
     {
         AddV1(builder);
         AddV2(builder);
