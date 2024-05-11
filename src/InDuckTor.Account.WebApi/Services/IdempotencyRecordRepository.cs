@@ -38,4 +38,9 @@ public class IdempotencyRecordRepository : IIdempotencyRecordRepository
         _dbContext.Update(record);
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
+
+    public async ValueTask Remove(string key, CancellationToken cancellationToken)
+    {
+        await _dbContext.Set<IdempotencyRecord>().Where(x => x.Key == key).ExecuteDeleteAsync(cancellationToken);
+    }
 }
