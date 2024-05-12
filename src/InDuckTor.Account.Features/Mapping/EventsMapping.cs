@@ -74,7 +74,7 @@ public static class EventsMapping
             {
                 Id = transaction.Id,
                 Status = (TransactionStatus)transaction.Status,
-                Type = (TransactionType)transaction.Status
+                Type = (TransactionType)transaction.Type
             }
         };
 }
